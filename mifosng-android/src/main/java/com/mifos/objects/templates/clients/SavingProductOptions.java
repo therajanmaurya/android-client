@@ -9,6 +9,15 @@ public class SavingProductOptions {
 	private String name;
 	private boolean withdrawalFeeForTransfers;
 	private boolean allowOverdraft;
+	private boolean enforceMinRequiredBalance;
+
+	public boolean isEnforceMinRequiredBalance() {
+		return enforceMinRequiredBalance;
+	}
+
+	public void setEnforceMinRequiredBalance(boolean enforceMinRequiredBalance) {
+		this.enforceMinRequiredBalance = enforceMinRequiredBalance;
+	}
 
 	public int getId() {
 		return id;
@@ -49,6 +58,7 @@ public class SavingProductOptions {
 				", name='" + name + '\'' +
 				", withdrawalFeeForTransfers=" + withdrawalFeeForTransfers +
 				", allowOverdraft=" + allowOverdraft +
+				", enforceMinRequiredBalance=" + enforceMinRequiredBalance +
 				'}';
 	}
 }
