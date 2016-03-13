@@ -43,6 +43,7 @@ import com.mifos.objects.organisation.ProductSavings;
 import com.mifos.objects.organisation.Staff;
 import com.mifos.objects.survey.Scorecard;
 import com.mifos.objects.survey.Survey;
+import com.mifos.objects.templates.clients.ClientsTemplate;
 import com.mifos.objects.templates.loans.LoanRepaymentTemplate;
 import com.mifos.objects.templates.savings.SavingsAccountTransactionTemplate;
 import com.mifos.services.data.CenterPayload;
@@ -104,7 +105,7 @@ public class ApiManager extends BaseApiManager {
         getClientsApi().createClient(payload, callback);
     }
 
-    public void getClientTemplate(Callback<Response> callback) {
+    public void getClientTemplate(Callback<ClientsTemplate> callback) {
         getClientsApi().getClientTemplate(callback);
     }
 
