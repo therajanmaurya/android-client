@@ -6,6 +6,11 @@ import com.mifos.objects.accounts.loan.InterestType;
 import java.util.Arrays;
 import java.util.List;
 
+/*
+ * This project is licensed under the open source MPL V2.
+ * See https://github.com/openMF/android-client/blob/master/LICENSE.md
+ */
+
 /**
  * Created by rajan on 13/3/16.
  */
