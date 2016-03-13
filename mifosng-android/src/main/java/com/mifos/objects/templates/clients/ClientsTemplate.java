@@ -20,12 +20,44 @@ public class ClientsTemplate {
 	private List<Options> clientClassificationOptions;
 	private List<InterestType> clientLegalFormOptions;
 
-	public List<InterestType> getClientLegalFormOptions() {
-		return clientLegalFormOptions;
+	public int[] getActivationDate() {
+		return activationDate;
 	}
 
-	public void setClientLegalFormOptions(List<InterestType> clientLegalFormOptions) {
-		this.clientLegalFormOptions = clientLegalFormOptions;
+	public void setActivationDate(int[] activationDate) {
+		this.activationDate = activationDate;
+	}
+
+	public int getOfficeId() {
+		return officeId;
+	}
+
+	public void setOfficeId(int officeId) {
+		this.officeId = officeId;
+	}
+
+	public List<OfficeOptions> getOfficeOptions() {
+		return officeOptions;
+	}
+
+	public void setOfficeOptions(List<OfficeOptions> officeOptions) {
+		this.officeOptions = officeOptions;
+	}
+
+	public List<StaffOptions> getStaffOptions() {
+		return staffOptions;
+	}
+
+	public void setStaffOptions(List<StaffOptions> staffOptions) {
+		this.staffOptions = staffOptions;
+	}
+
+	public List<SavingProductOptions> getSavingProductOptions() {
+		return savingProductOptions;
+	}
+
+	public void setSavingProductOptions(List<SavingProductOptions> savingProductOptions) {
+		this.savingProductOptions = savingProductOptions;
 	}
 
 	public List<Options> getGenderOptions() {
@@ -44,62 +76,20 @@ public class ClientsTemplate {
 		this.clientTypeOptions = clientTypeOptions;
 	}
 
+	public List<InterestType> getClientLegalFormOptions() {
+		return clientLegalFormOptions;
+	}
+
+	public void setClientLegalFormOptions(List<InterestType> clientLegalFormOptions) {
+		this.clientLegalFormOptions = clientLegalFormOptions;
+	}
+
 	public List<Options> getClientClassificationOptions() {
 		return clientClassificationOptions;
 	}
 
 	public void setClientClassificationOptions(List<Options> clientClassificationOptions) {
 		this.clientClassificationOptions = clientClassificationOptions;
-	}
-
-	public int[] getActivationDate()
-	{
-		return activationDate;
-	}
-
-	public void setActivationDate(int[] activationDate)
-	{
-		this.activationDate = activationDate;
-	}
-
-	public int getOfficeId()
-	{
-		return officeId;
-	}
-
-	public void setOfficeId(int officeId)
-	{
-		this.officeId = officeId;
-	}
-
-	public List<OfficeOptions> getOfficeOptions()
-	{
-		return officeOptions;
-	}
-
-	public void setOfficeOptions(List<OfficeOptions> officeOptions)
-	{
-		this.officeOptions = officeOptions;
-	}
-
-	public List<StaffOptions> getStaffOptions()
-	{
-		return staffOptions;
-	}
-
-	public void setStaffOptions(List<StaffOptions> staffOptions)
-	{
-		this.staffOptions = staffOptions;
-	}
-
-	public List<SavingProductOptions> getSavingProductOptions()
-	{
-		return savingProductOptions;
-	}
-
-	public void setSavingProductOptions(List<SavingProductOptions> savingProductOptions)
-	{
-		this.savingProductOptions = savingProductOptions;
 	}
 
 	@Override
