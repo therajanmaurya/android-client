@@ -1,114 +1,79 @@
 package com.mifos.mifosxdroid.tests;
 
 import android.content.Intent;
-import android.test.ActivityInstrumentationTestCase2;
-import android.test.ViewAsserts;
-import android.test.suitebuilder.annotation.SmallTest;
-import android.test.suitebuilder.annotation.Suppress;
-import android.view.KeyEvent;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
-import android.widget.TableLayout;
-import android.widget.TextView;
+import android.support.test.rule.ActivityTestRule;
+import android.support.test.runner.AndroidJUnit4;
+import android.test.suitebuilder.annotation.LargeTest;
 
 import com.mifos.mifosxdroid.R;
 import com.mifos.mifosxdroid.online.ClientActivity;
-import com.mifos.mifosxdroid.online.ClientDetailsFragment;
 import com.mifos.utils.Constants;
-import com.mifos.utils.FragmentConstants;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withText;
 
 /**
  * Created by Gabriel Esteban on 07/12/14.
  */
-@Suppress // TODO: Fix NPE
-public class ClientDetailsFragmentTest extends ActivityInstrumentationTestCase2<ClientActivity> {
+@RunWith(AndroidJUnit4.class)
+@LargeTest
+public class ClientDetailsFragmentTest {
 
-    ClientActivity clientActivity;
-    ClientDetailsFragment detailsFragment;
 
-    ImageView iv_client_image;
-    TextView tv_full_name;
-    TableLayout tbl_client_details;
-    RelativeLayout loans, savings, recurring;
+    private static String displayName = "Smith R";
+    private static String accountNo = "000000001";
+    private static String officeName = "Head Office";
 
-    public ClientDetailsFragmentTest() {
-        super(ClientActivity.class);
-    }
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+    @Rule
+    public ActivityTestRule<ClientActivity> mClientDetailsFragmentTest =
+            new ActivityTestRule<>(ClientActivity.class, true,false);
 
+    @Before
+    public void intentWithStubbedClientId(){
+       // registerIdlingResource();
         Intent clientActivityIntent = new Intent();
         clientActivityIntent.putExtra(Constants.CLIENT_ID, "000000001");
-        setActivityIntent(clientActivityIntent);
-        clientActivity = getActivity();
-        //waiting for the API
-        Thread.sleep(2000);
+        mClientDetailsFragmentTest.launchActivity(clientActivityIntent);
 
-        detailsFragment = (ClientDetailsFragment) getActivity().getSupportFragmentManager().findFragmentByTag(FragmentConstants.FRAG_CLIENT_DETAILS);
 
-        iv_client_image = (ImageView) clientActivity.findViewById(R.id.iv_clientImage);
-        tv_full_name = (TextView) clientActivity.findViewById(R.id.tv_fullName);
-        tbl_client_details = (TableLayout) clientActivity.findViewById(R.id.tbl_clientDetails);
-        loans = (RelativeLayout) clientActivity.findViewById(R.id.account_accordion_section_loans);
-        savings = (RelativeLayout) clientActivity.findViewById(R.id.account_accordion_section_savings);
-        recurring = (RelativeLayout) clientActivity.findViewById(R.id.account_accordion_section_recurring);
     }
 
-    @SmallTest
-    public void testFragmentIsNotNull(){
-        assertNotNull(detailsFragment);
+
+    @Test
+    public void clientDetailsDisplayedInUi() {
+
+        onView(withId(R.id.tv_fullName)).check(matches(withText(displayName)));
+        onView(withId(R.id.tv_office)).check(matches(withText(officeName)));
+        onView(withId(R.id.tv_accountNumber)).check(matches(withText(accountNo)));
+
     }
 
-    @SmallTest
-    public void testViewsAreNotNull() {
-        assertNotNull(iv_client_image);
-        assertNotNull(tv_full_name);
-        assertNotNull(tbl_client_details);
-        assertNotNull(loans);
-        assertNotNull(savings);
-        assertNotNull(recurring);
+
+    /**
+     * Unregister your Idling Resource so it can be garbage collected and does not leak any memory.
+     */
+    @After
+    public void unregisterIdlingResource() {
+       /* Espresso.unregisterIdlingResources(
+                mClientDetailsFragmentTest.getActivity().getCountingIdlingResource());*/
     }
 
-    @SmallTest
-    public void testViewsAreOnTheScreen() {
-        final View decorView = clientActivity.getWindow().getDecorView();
-
-        ViewAsserts.assertOnScreen(decorView, iv_client_image);
-        ViewAsserts.assertOnScreen(decorView, tv_full_name);
-        ViewAsserts.assertOnScreen(decorView, tbl_client_details);
-        ViewAsserts.assertOnScreen(decorView, loans);
-        ViewAsserts.assertOnScreen(decorView, savings);
-        ViewAsserts.assertOnScreen(decorView, recurring);
-    }
-
-    @SmallTest
-    public void testClientDocumentsFragmentShowed() throws InterruptedException {
-        //clicking the button
-        getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_MENU);
-//        getInstrumentation().invokeMenuActionSync(clientActivity, ClientDetailsFragment.MENU_ITEM_DOCUMENTS, 0);
-
-        //if something is wrong, invokeMenuActionSync will take an exception
-
-        //waiting for the API
-        Thread.sleep(2000);
-
-        this.sendKeys(KeyEvent.KEYCODE_BACK);
-    }
-
-    @SmallTest
-    public void testClientIdentifiersFragmentShowed() throws InterruptedException {
-        //clicking the button
-        getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_MENU);
-//        getInstrumentation().invokeMenuActionSync(clientActivity, ClientDetailsFragment.MENU_ITEM_IDENTIFIERS, 0);
-
-        //if something is wrong, invokeMenuActionSync will take an exception
-
-        //waiting for the API
-        Thread.sleep(2000);
-
-        this.sendKeys(KeyEvent.KEYCODE_BACK);
+    /**
+     * Convenience method to register an IdlingResources with Espresso. IdlingResource resource is
+     * a great way to tell Espresso when your app is in an idle state. This helps Espresso to
+     * synchronize your test actions, which makes tests significantly more reliable.
+     */
+    private void registerIdlingResource() {
+       /* Espresso.registerIdlingResources(
+                mClientDetailsFragmentTest.getActivity().getCountingIdlingResource());*/
     }
 }

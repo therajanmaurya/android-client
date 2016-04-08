@@ -1,4 +1,6 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 ext {
     espressoVersion = '2.2.1'
+    junitVersion = '4.12'
+    mockitoVersion = '1.10.19'
 }

@@ -56,6 +56,7 @@ import com.mifos.objects.client.Client;
 import com.mifos.objects.noncore.DataTable;
 import com.mifos.utils.Constants;
 import com.mifos.utils.DateHelper;
+import com.mifos.utils.EspressoIdlingResource;
 import com.mifos.utils.FragmentConstants;
 import com.mifos.utils.PrefManager;
 
@@ -285,6 +286,7 @@ public class ClientDetailsFragment extends MifosBaseFragment implements GoogleAp
      */
     public void getClientDetails() {
         showProgress("Working...");
+        EspressoIdlingResource.increment(); // App is busy until further notice.
         App.apiManager.getClient(clientId, new Callback<Client>() {
             @Override
             public void success(final Client client, Response response) {
@@ -357,6 +359,7 @@ public class ClientDetailsFragment extends MifosBaseFragment implements GoogleAp
                     });
                     hideProgress();
                     inflateClientsAccounts();
+                    EspressoIdlingResource.decrement(); // App is idle.
                 }
             }
 

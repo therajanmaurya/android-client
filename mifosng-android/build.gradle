@@ -138,5 +138,7 @@ dependencies {
     compile 'com.jakewharton:butterknife:6.1.0'
 
     compile "com.android.support.test.espresso:espresso-idling-resource:$rootProject.ext.espressoVersion"
+    testCompile "junit:junit:$rootProject.ext.junitVersion"
+    testCompile "org.mockito:mockito-all:$rootProject.ext.mockitoVersion"
 
 }
