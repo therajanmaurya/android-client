@@ -285,8 +285,7 @@ public class ClientDetailsFragment extends MifosBaseFragment implements GoogleAp
      * in the fragment
      */
     public void getClientDetails() {
-        showProgress("Working...");
-        EspressoIdlingResource.increment(); // App is busy until further notice.
+        //showProgress("Working...");
         App.apiManager.getClient(clientId, new Callback<Client>() {
             @Override
             public void success(final Client client, Response response) {
@@ -357,9 +356,8 @@ public class ClientDetailsFragment extends MifosBaseFragment implements GoogleAp
                             menu.show();
                         }
                     });
-                    hideProgress();
+                    //hideProgress();
                     inflateClientsAccounts();
-                    EspressoIdlingResource.decrement(); // App is idle.
                 }
             }
 
@@ -376,7 +374,7 @@ public class ClientDetailsFragment extends MifosBaseFragment implements GoogleAp
      * of the client and inflate them in the fragment
      */
     public void inflateClientsAccounts() {
-        showProgress();
+        //showProgress();
         App.apiManager.getClientAccounts(clientId, new Callback<ClientAccounts>() {
             @Override
             public void success(final ClientAccounts clientAccounts, Response response) {
@@ -417,7 +415,7 @@ public class ClientDetailsFragment extends MifosBaseFragment implements GoogleAp
                         }
                     });
                 }
-                hideProgress();
+                //hideProgress();
                 inflateDataTablesList();
             }
 
@@ -434,7 +432,7 @@ public class ClientDetailsFragment extends MifosBaseFragment implements GoogleAp
      * menu options
      */
     public void inflateDataTablesList() {
-        showProgress();
+        //showProgress();
         App.apiManager.getClientDataTable(new Callback<List<DataTable>>() {
             @Override
             public void success(List<DataTable> dataTables, Response response) {
@@ -444,7 +442,7 @@ public class ClientDetailsFragment extends MifosBaseFragment implements GoogleAp
                     while (dataTableIterator.hasNext())
                         clientDataTables.add(dataTableIterator.next());
                 }
-                hideProgress();
+                //hideProgress();
             }
 
             @Override

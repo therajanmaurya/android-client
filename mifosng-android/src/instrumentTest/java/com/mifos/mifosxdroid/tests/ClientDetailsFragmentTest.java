@@ -1,6 +1,7 @@
 package com.mifos.mifosxdroid.tests;
 
 import android.content.Intent;
+import android.support.test.espresso.Espresso;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.LargeTest;
@@ -38,12 +39,12 @@ public class ClientDetailsFragmentTest {
             new ActivityTestRule<>(ClientActivity.class, true,false);
 
     @Before
-    public void intentWithStubbedClientId(){
-       // registerIdlingResource();
-        Intent clientActivityIntent = new Intent();
-        clientActivityIntent.putExtra(Constants.CLIENT_ID, "000000001");
-        mClientDetailsFragmentTest.launchActivity(clientActivityIntent);
+    public void intentWithStubbedClientId() throws InterruptedException {
 
+        Intent clientActivityIntent = new Intent();
+        clientActivityIntent.putExtra(Constants.CLIENT_ID, 1);
+        mClientDetailsFragmentTest.launchActivity(clientActivityIntent);
+        registerIdlingResource();
 
     }
 
@@ -63,8 +64,8 @@ public class ClientDetailsFragmentTest {
      */
     @After
     public void unregisterIdlingResource() {
-       /* Espresso.unregisterIdlingResources(
-                mClientDetailsFragmentTest.getActivity().getCountingIdlingResource());*/
+        Espresso.unregisterIdlingResources(
+                mClientDetailsFragmentTest.getActivity().getCountingIdlingResource());
     }
 
     /**
@@ -73,7 +74,7 @@ public class ClientDetailsFragmentTest {
      * synchronize your test actions, which makes tests significantly more reliable.
      */
     private void registerIdlingResource() {
-       /* Espresso.registerIdlingResources(
-                mClientDetailsFragmentTest.getActivity().getCountingIdlingResource());*/
+        Espresso.registerIdlingResources(
+                mClientDetailsFragmentTest.getActivity().getCountingIdlingResource());
     }
 }
