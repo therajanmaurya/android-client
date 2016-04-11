@@ -5,6 +5,7 @@ import android.support.test.espresso.Espresso;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.test.suitebuilder.annotation.LargeTest;
+import android.test.suitebuilder.annotation.MediumTest;
 
 import com.mifos.mifosxdroid.R;
 import com.mifos.mifosxdroid.online.ClientActivity;
@@ -49,7 +50,7 @@ public class ClientDetailsFragmentTest {
     }
 
 
-    @Test
+    @MediumTest
     public void clientDetailsDisplayedInUi() {
 
         onView(withId(R.id.tv_fullName)).check(matches(withText(displayName)));
