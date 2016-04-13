@@ -81,6 +81,13 @@ android {
         exclude 'LICENSE.txt'
     }
     useLibrary 'org.apache.http.legacy'
+
+    // Always show the result of every unit test, even if it passes.
+    testOptions.unitTests.all {
+        testLogging {
+            events 'passed', 'skipped', 'failed', 'standardOut', 'standardError'
+        }
+    }
 }
 
 task buildAndEMailAPK(type: Exec, description: 'Builds and Generates a Signed APK and emails it') {
@@ -129,10 +136,17 @@ dependencies {
     compile 'com.squareup.okhttp:okhttp-urlconnection:2.0.0'
     compile 'com.squareup.okhttp:okhttp:2.0.0'
     compile 'com.amulyakhare:com.amulyakhare.textdrawable:1.0.1'
-    // Test libraries provided by https://code.google.com/p/android-test-kit/
-    androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.1'
+    compile "com.android.support.test.espresso:espresso-idling-resource:2.2.1"
+
+    // Android Testing Support Library's runner and rules
     androidTestCompile 'com.android.support.test:runner:0.4.1'
+    androidTestCompile "com.android.support.test:rules:0.4.1"
     androidTestCompile 'com.android.support:support-annotations:23.1.1'
+
+    // Espresso UI Testing dependencies.
+    androidTestCompile "com.android.support.test.espresso:espresso-core:2.2.1"
+    androidTestCompile "com.android.support.test.espresso:espresso-contrib:2.2.1"
+    androidTestCompile "com.android.support.test.espresso:espresso-intents:2.2.1"
 
     compile 'com.squareup.retrofit:retrofit:1.9.0'
     compile 'com.jakewharton:butterknife:6.1.0'
