@@ -23,6 +23,7 @@ import com.mifos.mifosxdroid.core.util.Toaster;
 import com.mifos.objects.client.Client;
 import com.mifos.objects.client.Page;
 import com.mifos.utils.Constants;
+import com.mifos.utils.EspressoIdlingResource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -107,7 +108,8 @@ public class ClientListFragment extends MifosBaseFragment {
     }
 
     public void fetchClientList() {
-        showProgress();
+        EspressoIdlingResource.increment(); // App is busy until further notice.
+        //showProgress();
             shouldCheckForMoreClients = false;
             areMoreClientsAvailable = true;
             totalFilteredRecords = 0;
@@ -119,6 +121,7 @@ public class ClientListFragment extends MifosBaseFragment {
                     inflateClientList();
                     if (swipeRefreshLayout.isRefreshing())
                         swipeRefreshLayout.setRefreshing(false);
+                    EspressoIdlingResource.decrement(); // App is idle.
                 }
 
                 @Override
@@ -126,7 +129,8 @@ public class ClientListFragment extends MifosBaseFragment {
                     if (swipeRefreshLayout.isRefreshing())
                         swipeRefreshLayout.setRefreshing(false);
                     Toaster.show(rootView, "There was some error fetching list.");
-                    hideProgress();
+                    //hideProgress();
+                    EspressoIdlingResource.decrement(); // App is idle.
                 }
             });
     }

@@ -6,6 +6,8 @@
 package com.mifos.mifosxdroid;
 
 import android.os.Bundle;
+import android.support.annotation.VisibleForTesting;
+import android.support.test.espresso.IdlingResource;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -13,6 +15,7 @@ import com.mifos.mifosxdroid.R;
 import com.mifos.mifosxdroid.core.MifosBaseActivity;
 import com.mifos.mifosxdroid.online.ClientListFragment;
 import com.mifos.mifosxdroid.online.CreateNewClientFragment;
+import com.mifos.utils.EspressoIdlingResource;
 
 public class ClientListActivity extends MifosBaseActivity {
     public void onCreate(Bundle savedInstanceState) {
@@ -20,6 +23,11 @@ public class ClientListActivity extends MifosBaseActivity {
         setContentView(R.layout.activity_toolbar_container);
         showBackButton();
         replaceFragment(new ClientListFragment(), false, R.id.container);
+    }
+
+    @VisibleForTesting
+    public IdlingResource getCountingIdlingResource() {
+        return EspressoIdlingResource.getIdlingResource();
     }
 
 }
