@@ -50,6 +50,7 @@ public class ClientSearchFragment extends MifosBaseFragment implements AdapterVi
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_client_search, null);
         ButterKnife.inject(this, rootView);
+        setToolbarTitle(getResources().getString(R.string.dashboard));
         adapter = new ClientSearchAdapter(getContext(), clients, R.layout.list_item_client);
         results.setAdapter(adapter);
         results.setOnItemClickListener(this);
