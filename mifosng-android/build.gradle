@@ -137,7 +137,7 @@ dependencies {
     compile 'com.squareup.okhttp:okhttp:2.0.0'
     compile 'com.amulyakhare:com.amulyakhare.textdrawable:1.0.1'
     compile "com.android.support.test.espresso:espresso-idling-resource:2.2.1"
-
+    compile 'com.android.support:support-annotations:23.1.1'
 
     // Dependencies for local unit tests
     testCompile "junit:junit:4.12"
@@ -147,12 +147,15 @@ dependencies {
     testCompile "org.powermock:powermock-api-mockito:1.6.2"
 
     // Android Testing Support Library's runner and rules
-    androidTestCompile 'com.android.support.test:runner:0.4.1'
-    androidTestCompile "com.android.support.test:rules:0.4.1"
+    androidTestCompile 'com.android.support.test:runner:0.5'
+    androidTestCompile "com.android.support.test:rules:0.5"
 
     // Espresso UI Testing dependencies.
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.1'){
-        exclude group: 'javax.inject'
+    androidTestCompile ('com.android.support.test.espresso:espresso-core:2.2.2'){
+        exclude module: 'support-annotations'
+        exclude module: 'support-v4'
+        exclude module: 'support-v13'
+        exclude module: 'recyclerview-v7'
     }
     androidTestCompile "com.android.support.test.espresso:espresso-contrib:2.2.1"
     androidTestCompile "com.android.support.test.espresso:espresso-intents:2.2.1"
@@ -167,6 +170,20 @@ dependencies {
 Resolves dependency versions across test and production APKs, specifically, transitive
 dependencies. This is required since Espresso internally has a dependency on support-annotations.
 */
+/*
 configurations.all {
     resolutionStrategy.force "com.android.support:support-annotations:23.1.1"
+}*/
+
+/*
+All direct/transitive dependencies shared between your test and production APKs need to be
+excluded from the test APK! This is necessary because both APKs will contain the same classes. Not
+excluding these dependencies from your test configuration will result in an dex pre-verifier error
+at runtime. More info in this tools bug: (https://code.google.com/p/android/issues/detail?id=192497)
+*/
+configurations.compile.dependencies.each { compileDependency ->
+    println "Excluding compile dependency: ${compileDependency.getName()}"
+    configurations.androidTestCompile.dependencies.each { androidTestCompileDependency ->
+        configurations.androidTestCompile.exclude module: "${compileDependency.getName()}"
+    }
 }

@@ -128,7 +128,7 @@ public class ClientListFragment extends MifosBaseFragment {
                 public void failure(RetrofitError retrofitError) {
                     if (swipeRefreshLayout.isRefreshing())
                         swipeRefreshLayout.setRefreshing(false);
-                    Toaster.show(rootView, "There was some error fetching list.");
+                    //Toaster.show(rootView, "There was some error fetching list.");
                     //hideProgress();
                     EspressoIdlingResource.decrement(); // App is idle.
                 }
