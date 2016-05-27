@@ -32,21 +32,17 @@ import com.mifos.exceptions.InvalidTextInputException;
 import com.mifos.exceptions.RequiredFieldException;
 import com.mifos.exceptions.ShortOfLengthException;
 import com.mifos.mifosxdroid.R;
-import com.mifos.mifosxdroid.core.MifosBaseFragment;
+import com.mifos.mifosxdroid.core.ProgressableFragment;
 import com.mifos.mifosxdroid.uihelpers.MFDatePicker;
 import com.mifos.objects.group.Group;
 import com.mifos.objects.organisation.Office;
-import com.mifos.objects.organisation.Staff;
 import com.mifos.services.data.GroupPayload;
 import com.mifos.utils.DateHelper;
 import com.mifos.utils.FragmentConstants;
-import com.mifos.utils.SafeUIBlockingUtility;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -55,10 +51,11 @@ import retrofit.RetrofitError;
 import retrofit.client.Response;
 
 
-public class CreateNewGroupFragment extends MifosBaseFragment implements MFDatePicker.OnDatePickListener {
+public class CreateNewGroupFragment extends ProgressableFragment implements MFDatePicker
+        .OnDatePickListener {
 
 
-    private static final String TAG = "CreateNewGroup";
+    private final String LOG_TAG = getClass().getSimpleName();
     @InjectView(R.id.et_group_name)
     EditText et_groupName;
     @InjectView(R.id.et_group_external_id)
@@ -67,41 +64,29 @@ public class CreateNewGroupFragment extends MifosBaseFragment implements MFDateP
     CheckBox cb_groupActiveStatus;
     @InjectView(R.id.tv_group_submission_date)
     TextView tv_submissionDate;
-    @InjectView(R.id.sp_offices)
+    @InjectView(R.id.tv_group_activationDate)
+    TextView tv_activationDate;
+    @InjectView(R.id.sp_group_offices)
     Spinner sp_offices;
-    @InjectView(R.id.sp_staff)
-    Spinner sp_staff;
     @InjectView(R.id.bt_submit)
     Button bt_submit;
-
+    String activationdateString;
     int officeId;
-    int staffId;
     Boolean result = true;
     View rootView;
-    String dateString;
     String dateofsubmissionstring;
-    SafeUIBlockingUtility safeUIBlockingUtility;
     private DialogFragment mfDatePicker;
     private DialogFragment newDatePicker;
     private HashMap<String, Integer> officeNameIdHashMap = new HashMap<String, Integer>();
-    private HashMap<String, Integer> staffNameIdHashMap = new HashMap<String, Integer>();
 
+
+    public CreateNewGroupFragment() {
+        // Required empty public constructor
+    }
 
     public static CreateNewGroupFragment newInstance() {
         CreateNewGroupFragment createNewGroupFragment = new CreateNewGroupFragment();
         return createNewGroupFragment;
-    }
-
-    public static boolean isValidMsisdn(String msisdn) {
-        if (msisdn == null || msisdn.trim().isEmpty()) {
-            return false;
-        }
-        String expression = "^[+]?\\d{10,13}$";
-        Pattern pattern;
-        Matcher matcher;
-        pattern = Pattern.compile(expression);
-        matcher = pattern.matcher(msisdn);
-        return matcher.matches();
     }
 
     @Override
@@ -110,29 +95,35 @@ public class CreateNewGroupFragment extends MifosBaseFragment implements MFDateP
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
+            savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_create_new_group, null);
         ButterKnife.inject(this, rootView);
         inflateOfficeSpinner();
         inflateSubmissionDate();
-        inflateDateofBirth();
+        inflateActivationDate();
 
 
         //client active checkbox onCheckedListener
-        cb_groupActiveStatus.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        cb_groupActiveStatus.setOnCheckedChangeListener(new CompoundButton
+                .OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                if (isChecked)
-                    tv_submissionDate.setVisibility(View.VISIBLE);
-                else
-                    tv_submissionDate.setVisibility(View.GONE);
+                if (isChecked) {
+                    tv_activationDate.setVisibility(View.VISIBLE);
+                } else {
+                    tv_activationDate.setVisibility(View.GONE);
+                }
+
             }
         });
 
-        dateString = tv_submissionDate.getText().toString();
-        dateString = DateHelper.getDateAsStringUsedForCollectionSheetPayload(dateString).replace("-", " ");
+        activationdateString = tv_activationDate.getText().toString();
+        activationdateString = DateHelper.getDateAsStringUsedForCollectionSheetPayload
+                (activationdateString).replace("-", " ");
         dateofsubmissionstring = tv_submissionDate.getText().toString();
-        dateofsubmissionstring = DateHelper.getDateAsStringUsedForDateofBirth(dateofsubmissionstring).replace("-", " ");
+        dateofsubmissionstring = DateHelper.getDateAsStringUsedForDateofBirth
+                (dateofsubmissionstring).replace("-", " ");
 
         bt_submit.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -140,14 +131,14 @@ public class CreateNewGroupFragment extends MifosBaseFragment implements MFDateP
 
                 GroupPayload groupPayload = new GroupPayload();
 
-                groupPayload.setGroupName(et_groupName.getEditableText().toString());
+                groupPayload.setName(et_groupName.getEditableText().toString());
                 groupPayload.setExternalId(et_groupexternalId.getEditableText().toString());
                 groupPayload.setActive(cb_groupActiveStatus.isChecked());
-                groupPayload.setActivationDate(dateString);
+                groupPayload.setActivationDate(activationdateString);
                 groupPayload.setSubmissionDate(dateofsubmissionstring);
                 groupPayload.setOfficeId(officeId);
-                groupPayload.setStaffId(staffId);
-
+                groupPayload.setDateFormat("dd MMMM yyyy");
+                groupPayload.setLocale("en");
 
                 initiateGroupCreation(groupPayload);
 
@@ -156,14 +147,17 @@ public class CreateNewGroupFragment extends MifosBaseFragment implements MFDateP
 
         return rootView;
     }
+
     //inflating office list spinner
     private void inflateOfficeSpinner() {
-        safeUIBlockingUtility = new SafeUIBlockingUtility(getActivity());
-        safeUIBlockingUtility.safelyBlockUI();
+        showProgress(true);
         App.apiManager.getOffices(new Callback<List<Office>>() {
 
             @Override
             public void success(List<Office> offices, Response response) {
+                /* Activity is null - Fragment has been detached; no need to do anything. */
+                if (getActivity() == null) return;
+
                 final ArrayList<String> officeList = new ArrayList<String>();
 
                 for (Office office : offices) {
@@ -172,22 +166,23 @@ public class CreateNewGroupFragment extends MifosBaseFragment implements MFDateP
                 }
                 ArrayAdapter<String> officeAdapter = new ArrayAdapter<String>(getActivity(),
                         android.R.layout.simple_spinner_item, officeList);
-                officeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                officeAdapter.setDropDownViewResource(android.R.layout
+                        .simple_spinner_dropdown_item);
                 sp_offices.setAdapter(officeAdapter);
                 sp_offices.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 
                     @Override
-                    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long
+                            l) {
                         officeId = officeNameIdHashMap.get(officeList.get(i));
                         Log.d("officeId " + officeList.get(i), String.valueOf(officeId));
                         if (officeId != -1) {
 
-                            inflateStaffSpinner(officeId);
-
 
                         } else {
 
-                            Toast.makeText(getActivity(), getString(R.string.error_select_office), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getActivity(), getString(R.string.error_select_office)
+                                    , Toast.LENGTH_SHORT).show();
 
                         }
 
@@ -199,91 +194,41 @@ public class CreateNewGroupFragment extends MifosBaseFragment implements MFDateP
                     }
                 });
 
-                safeUIBlockingUtility.safelyUnBlockUI();
+                showProgress(false);
 
             }
 
             @Override
             public void failure(RetrofitError retrofitError) {
 
-                System.out.println(retrofitError.getLocalizedMessage());
+                Log.d(LOG_TAG, retrofitError.getLocalizedMessage());
 
-                safeUIBlockingUtility.safelyUnBlockUI();
             }
         });
 
     }
-
-    public void inflateStaffSpinner(final int officeId) {
-
-        App.apiManager.getStaffInOffice(officeId, new Callback<List<Staff>>() {
-            @Override
-            public void success(List<Staff> staffs, Response response) {
-
-                final List<String> staffNames = new ArrayList<>();
-                for (Staff staff : staffs) {
-                    staffNames.add(staff.getDisplayName());
-                    staffNameIdHashMap.put(staff.getDisplayName(), staff.getId());
-                }
-                ArrayAdapter<String> staffAdapter = new ArrayAdapter<String>(getActivity(),
-                        android.R.layout.simple_spinner_item, staffNames);
-                staffAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                sp_staff.setAdapter(staffAdapter);
-                sp_staff.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                    @Override
-                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
-                        staffId = staffNameIdHashMap.get(staffNames.get(position));
-                        Log.d("staffId " + staffNames.get(position), String.valueOf(staffId));
-                        if (staffId != -1) {
-
-                        } else {
-                            Toast.makeText(getActivity(), getString(R.string.error_select_staff), Toast.LENGTH_SHORT).show();
-                        }
-                    }
-
-                    @Override
-                    public void onNothingSelected(AdapterView<?> adapterView) {
-
-                    }
-
-                });
-                safeUIBlockingUtility.safelyUnBlockUI();
-            }
-
-            @Override
-            public void failure(RetrofitError error) {
-                safeUIBlockingUtility.safelyUnBlockUI();
-            }
-        });
-    }
-
 
     private void initiateGroupCreation(GroupPayload groupPayload) {
         //TextField validations
 
-        if (!isValidFirstName()) {
+        if (!isValidGroupName()) {
             return;
         }
-        else {
+        App.apiManager.createGroup(groupPayload, new Callback<Group>() {
+            @Override
+            public void success(Group group, Response response) {
+                showProgress(false);
+                Toast.makeText(getActivity(), "Group created successfully", Toast.LENGTH_LONG)
+                        .show();
 
-            safeUIBlockingUtility.safelyBlockUI();
-            App.apiManager.createGroup(groupPayload, new Callback<Group>() {
-                @Override
-                public void success(Group group, Response response) {
-                    safeUIBlockingUtility.safelyUnBlockUI();
-                    Toast.makeText(getActivity(), "Group created successfully", Toast.LENGTH_LONG).show();
+            }
 
-                }
-
-                @Override
-                public void failure(RetrofitError error) {
-                    safeUIBlockingUtility.safelyUnBlockUI();
-                    Toast.makeText(getActivity(), "Try again", Toast.LENGTH_LONG).show();
-                }
-            });
-        }
-
+            @Override
+            public void failure(RetrofitError error) {
+                showProgress(false);
+                Toast.makeText(getActivity(), "Try again", Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
 
@@ -295,21 +240,23 @@ public class CreateNewGroupFragment extends MifosBaseFragment implements MFDateP
         tv_submissionDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mfDatePicker.show(getActivity().getSupportFragmentManager(), FragmentConstants.DFRAG_DATE_PICKER);
+                mfDatePicker.show(getActivity().getSupportFragmentManager(), FragmentConstants
+                        .DFRAG_DATE_PICKER);
             }
         });
 
     }
 
-    public void inflateDateofBirth() {
+    public void inflateActivationDate() {
         newDatePicker = MFDatePicker.newInsance(this);
 
-        tv_submissionDate.setText(MFDatePicker.getDatePickedAsString());
+        tv_activationDate.setText(MFDatePicker.getDatePickedAsString());
 
-        tv_submissionDate.setOnClickListener(new View.OnClickListener() {
+        tv_activationDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                newDatePicker.show(getActivity().getSupportFragmentManager(), FragmentConstants.DFRAG_DATE_PICKER);
+                newDatePicker.show(getActivity().getSupportFragmentManager(), FragmentConstants
+                        .DFRAG_DATE_PICKER);
             }
 
         });
@@ -319,20 +266,25 @@ public class CreateNewGroupFragment extends MifosBaseFragment implements MFDateP
 
     public void onDatePicked(String date) {
         tv_submissionDate.setText(date);
+        tv_activationDate.setText(date);
 
     }
 
-    public boolean isValidFirstName() {
+    public boolean isValidGroupName() {
         try {
             if (TextUtils.isEmpty(et_groupName.getEditableText().toString())) {
-                throw new RequiredFieldException(getResources().getString(R.string.first_name), getResources().getString(R.string.error_cannot_be_empty));
+                throw new RequiredFieldException(getResources().getString(R.string.group_name),
+                        getResources().getString(R.string.error_cannot_be_empty));
             }
 
-            if (et_groupName.getEditableText().toString().trim().length() < 4 && et_groupName.getEditableText().toString().trim().length() > 0) {
-                throw new ShortOfLengthException(getResources().getString(R.string.first_name), 4);
+            if (et_groupName.getEditableText().toString().trim().length() < 4 && et_groupName
+                    .getEditableText().toString().trim().length() > 0) {
+                throw new ShortOfLengthException(getResources().getString(R.string.group_name), 4);
             }
             if (!et_groupName.getEditableText().toString().matches("[a-zA-Z]+")) {
-                throw new InvalidTextInputException(getResources().getString(R.string.first_name), getResources().getString(R.string.error_should_contain_only), InvalidTextInputException.TYPE_ALPHABETS);
+                throw new InvalidTextInputException(getResources().getString(R.string.group_name)
+                        , getResources().getString(R.string.error_should_contain_only),
+                        InvalidTextInputException.TYPE_ALPHABETS);
             }
         } catch (InvalidTextInputException e) {
             e.notifyUserWithToast(getActivity());

@@ -16,6 +16,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.PopupMenu;
 import android.text.TextUtils;
 import android.util.Log;
@@ -42,12 +43,11 @@ import com.joanzapata.iconify.fonts.MaterialIcons;
 import com.joanzapata.iconify.widget.IconTextView;
 import com.mifos.App;
 import com.mifos.api.ApiRequestInterceptor;
-import com.mifos.api.model.GpsCoordinatesRequest;
-import com.mifos.api.model.GpsCoordinatesResponse;
 import com.mifos.mifosxdroid.R;
+import com.mifos.mifosxdroid.activity.PinpointClientActivity;
 import com.mifos.mifosxdroid.adapters.LoanAccountsListAdapter;
 import com.mifos.mifosxdroid.adapters.SavingsAccountsListAdapter;
-import com.mifos.mifosxdroid.core.MifosBaseFragment;
+import com.mifos.mifosxdroid.core.ProgressableFragment;
 import com.mifos.mifosxdroid.core.util.Toaster;
 import com.mifos.mifosxdroid.views.CircularImageView;
 import com.mifos.objects.accounts.ClientAccounts;
@@ -59,8 +59,6 @@ import com.mifos.utils.Constants;
 import com.mifos.utils.DateHelper;
 import com.mifos.utils.FragmentConstants;
 import com.mifos.utils.PrefManager;
-
-import org.apache.http.HttpStatus;
 
 import java.io.File;
 import java.io.IOException;
@@ -91,16 +89,16 @@ import static android.view.View.OnTouchListener;
 import static android.view.View.VISIBLE;
 
 
-public class ClientDetailsFragment extends MifosBaseFragment implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
+public class ClientDetailsFragment extends ProgressableFragment implements GoogleApiClient
+        .ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
-    private final String TAG = ClientDetailsFragment.class.getSimpleName();
-    public final static int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
-
+    public static final int CONNECTION_FAILURE_RESOLUTION_REQUEST = 9000;
     // Intent response codes. Each response code must be a unique integer.
     private static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 1;
     public static int clientId;
-    List<Charges> chargesList = new ArrayList<Charges>();
     public static List<DataTable> clientDataTables = new ArrayList<>();
+    private final String TAG = ClientDetailsFragment.class.getSimpleName();
+    List<Charges> chargesList = new ArrayList<Charges>();
     @InjectView(R.id.tv_fullName)
     TextView tv_fullName;
     @InjectView(R.id.tv_accountNumber)
@@ -115,7 +113,6 @@ public class ClientDetailsFragment extends MifosBaseFragment implements GoogleAp
     CircularImageView iv_clientImage;
     @InjectView(R.id.pb_imageProgressBar)
     ProgressBar pb_imageProgressBar;
-
     @InjectView(R.id.row_account)
     TableRow rowAccount;
     @InjectView(R.id.row_external)
@@ -159,7 +156,8 @@ public class ClientDetailsFragment extends MifosBaseFragment implements GoogleAp
 
     @Override
     public void onDetach() {
-        if (imageLoadingAsyncTask != null && !imageLoadingAsyncTask.getStatus().equals(AsyncTask.Status.FINISHED))
+        if (imageLoadingAsyncTask != null && !imageLoadingAsyncTask.getStatus().equals(AsyncTask
+                .Status.FINISHED))
             imageLoadingAsyncTask.cancel(true);
         super.onDetach();
     }
@@ -174,7 +172,8 @@ public class ClientDetailsFragment extends MifosBaseFragment implements GoogleAp
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
+            savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_client_details, container, false);
         ButterKnife.inject(this, rootView);
         inflateClientInformation();
@@ -187,7 +186,8 @@ public class ClientDetailsFragment extends MifosBaseFragment implements GoogleAp
         try {
             mListener = (OnFragmentInteractionListener) activity;
         } catch (ClassCastException e) {
-            throw new ClassCastException(getActivity().getClass().getSimpleName() + " must implement OnFragmentInteractionListener");
+            throw new ClassCastException(getActivity().getClass().getSimpleName() + " must " +
+                    "implement OnFragmentInteractionListener");
         }
     }
 
@@ -215,10 +215,17 @@ public class ClientDetailsFragment extends MifosBaseFragment implements GoogleAp
             case R.id.add_savings:
                 addsavingsaccount();
                 break;
+            case R.id.add_loan:
+                addloanaccount();
+                break;
             case R.id.identifiers:
                 loadIdentifiers();
                 break;
-
+            case R.id.pinpoint:
+                Intent i = new Intent(getActivity(), PinpointClientActivity.class);
+                i.putExtra(PinpointClientActivity.EXTRA_CLIENT_ID, clientId);
+                startActivity(i);
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -233,6 +240,7 @@ public class ClientDetailsFragment extends MifosBaseFragment implements GoogleAp
         startActivityForResult(intent, CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE);
     }
 
+    @SuppressWarnings("deprecation")
     public void deleteClientImage() {
         App.apiManager.deleteClientImage(clientId, new Callback<Response>() {
             @Override
@@ -281,10 +289,12 @@ public class ClientDetailsFragment extends MifosBaseFragment implements GoogleAp
      * in the fragment
      */
     public void getClientDetails() {
-        showProgress("Working...");
+        showProgress(true);
         App.apiManager.getClient(clientId, new Callback<Client>() {
             @Override
             public void success(final Client client, Response response) {
+                /* Activity is null - Fragment has been detached; no need to do anything. */
+                if (getActivity() == null) return;
 
                 if (client != null) {
                     setToolbarTitle(getString(R.string.client) + " - " + client.getLastname());
@@ -302,7 +312,8 @@ public class ClientDetailsFragment extends MifosBaseFragment implements GoogleAp
                         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd MMM yyyy");
                         Date date = simpleDateFormat.parse(DateHelper.getDateAsString(dateObj));
                         Locale currentLocale = getResources().getConfiguration().locale;
-                        DateFormat df = DateFormat.getDateInstance(DateFormat.MEDIUM, currentLocale);
+                        DateFormat df = DateFormat.getDateInstance(DateFormat.MEDIUM,
+                                currentLocale);
                         String dateString = df.format(date);
                         tv_activationDate.setText(dateString);
 
@@ -310,10 +321,11 @@ public class ClientDetailsFragment extends MifosBaseFragment implements GoogleAp
                             rowActivation.setVisibility(GONE);
 
                     } catch (IndexOutOfBoundsException e) {
-                        Toast.makeText(getActivity(), getString(R.string.error_client_inactive), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), getString(R.string.error_client_inactive),
+                                Toast.LENGTH_SHORT).show();
                         tv_activationDate.setText("");
                     } catch (ParseException e) {
-                        e.printStackTrace();
+                        Log.d(TAG, e.getLocalizedMessage());
                     }
                     tv_office.setText(client.getOfficeName());
 
@@ -324,7 +336,10 @@ public class ClientDetailsFragment extends MifosBaseFragment implements GoogleAp
                         imageLoadingAsyncTask = new ImageLoadingAsyncTask();
                         imageLoadingAsyncTask.execute(client.getId());
                     } else {
-                        iv_clientImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_launcher));
+                        iv_clientImage.setImageDrawable(
+                                ResourcesCompat.getDrawable(getResources(), R.drawable
+                                        .ic_launcher, null));
+
                         pb_imageProgressBar.setVisibility(GONE);
                     }
 
@@ -332,27 +347,31 @@ public class ClientDetailsFragment extends MifosBaseFragment implements GoogleAp
                         @Override
                         public void onClick(View view) {
                             PopupMenu menu = new PopupMenu(getActivity(), view);
-                            menu.getMenuInflater().inflate(R.menu.client_image_popup, menu.getMenu());
-                            menu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                                @Override
-                                public boolean onMenuItemClick(MenuItem menuItem) {
-                                    switch (menuItem.getItemId()) {
-                                        case R.id.client_image_capture:
-                                            captureClientImage();
-                                            break;
-                                        case R.id.client_image_remove:
-                                            deleteClientImage();
-                                            break;
-                                        default:
-                                            Log.e("ClientDetailsFragment", "Unrecognized client image menu item");
-                                    }
-                                    return true;
-                                }
-                            });
+                            menu.getMenuInflater().inflate(R.menu.client_image_popup, menu
+                                    .getMenu());
+                            menu.setOnMenuItemClickListener(
+                                    new PopupMenu.OnMenuItemClickListener() {
+                                        @Override
+                                        public boolean onMenuItemClick(MenuItem menuItem) {
+                                            switch (menuItem.getItemId()) {
+                                                case R.id.client_image_capture:
+                                                    captureClientImage();
+                                                    break;
+                                                case R.id.client_image_remove:
+                                                    deleteClientImage();
+                                                    break;
+                                                default:
+                                                    Log.e("ClientDetailsFragment", "Unrecognized " +
+                                                            "client " +
+                                                            "image menu item");
+                                            }
+                                            return true;
+                                        }
+                                    });
                             menu.show();
                         }
                     });
-                    hideProgress();
+                    showProgress(false);
                     inflateClientsAccounts();
                 }
             }
@@ -360,7 +379,7 @@ public class ClientDetailsFragment extends MifosBaseFragment implements GoogleAp
             @Override
             public void failure(RetrofitError retrofitError) {
                 Toaster.show(rootView, "Client not found.");
-                hideProgress();
+                showProgress(false);
             }
         });
     }
@@ -370,7 +389,7 @@ public class ClientDetailsFragment extends MifosBaseFragment implements GoogleAp
      * of the client and inflate them in the fragment
      */
     public void inflateClientsAccounts() {
-        showProgress();
+        showProgress(true);
         App.apiManager.getClientAccounts(clientId, new Callback<ClientAccounts>() {
             @Override
             public void success(final ClientAccounts clientAccounts, Response response) {
@@ -381,10 +400,13 @@ public class ClientDetailsFragment extends MifosBaseFragment implements GoogleAp
                 accountAccordion = new AccountAccordion(getActivity());
                 if (clientAccounts.getLoanAccounts().size() > 0) {
                     AccountAccordion.Section section = AccountAccordion.Section.LOANS;
-                    final LoanAccountsListAdapter adapter = new LoanAccountsListAdapter(getActivity().getApplicationContext(), clientAccounts.getLoanAccounts());
+                    final LoanAccountsListAdapter adapter =
+                            new LoanAccountsListAdapter(getActivity().getApplicationContext(),
+                                    clientAccounts.getLoanAccounts());
                     section.connect(getActivity(), adapter, new AdapterView.OnItemClickListener() {
                         @Override
-                        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                        public void onItemClick(AdapterView<?> adapterView, View view, int i,
+                                                long l) {
                             mListener.loadLoanAccountSummary(adapter.getItem(i).getId());
                         }
                     });
@@ -392,33 +414,41 @@ public class ClientDetailsFragment extends MifosBaseFragment implements GoogleAp
 
                 if (clientAccounts.getNonRecurringSavingsAccounts().size() > 0) {
                     AccountAccordion.Section section = AccountAccordion.Section.SAVINGS;
-                    final SavingsAccountsListAdapter adapter = new SavingsAccountsListAdapter(getActivity().getApplicationContext(), clientAccounts.getNonRecurringSavingsAccounts());
+                    final SavingsAccountsListAdapter adapter =
+                            new SavingsAccountsListAdapter(getActivity().getApplicationContext(),
+                                    clientAccounts.getNonRecurringSavingsAccounts());
                     section.connect(getActivity(), adapter, new AdapterView.OnItemClickListener() {
                         @Override
-                        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                            mListener.loadSavingsAccountSummary(adapter.getItem(i).getId(), adapter.getItem(i).getDepositType());
+                        public void onItemClick(AdapterView<?> adapterView, View view, int i,
+                                                long l) {
+                            mListener.loadSavingsAccountSummary(adapter.getItem(i).getId(),
+                                    adapter.getItem(i).getDepositType());
                         }
                     });
                 }
 
                 if (clientAccounts.getRecurringSavingsAccounts().size() > 0) {
                     AccountAccordion.Section section = AccountAccordion.Section.RECURRING;
-                    final SavingsAccountsListAdapter adapter = new SavingsAccountsListAdapter(getActivity().getApplicationContext(), clientAccounts.getRecurringSavingsAccounts());
+                    final SavingsAccountsListAdapter adapter =
+                            new SavingsAccountsListAdapter(getActivity().getApplicationContext(),
+                                    clientAccounts.getRecurringSavingsAccounts());
                     section.connect(getActivity(), adapter, new AdapterView.OnItemClickListener() {
                         @Override
-                        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                            mListener.loadSavingsAccountSummary(adapter.getItem(i).getId(), adapter.getItem(i).getDepositType());
+                        public void onItemClick(AdapterView<?> adapterView, View view, int i,
+                                                long l) {
+                            mListener.loadSavingsAccountSummary(adapter.getItem(i).getId(),
+                                    adapter.getItem(i).getDepositType());
                         }
                     });
                 }
-                hideProgress();
+                showProgress(false);
                 inflateDataTablesList();
             }
 
             @Override
             public void failure(RetrofitError retrofitError) {
                 Toaster.show(rootView, "Accounts not found.");
-                hideProgress();
+                showProgress(false);
             }
         });
     }
@@ -428,22 +458,24 @@ public class ClientDetailsFragment extends MifosBaseFragment implements GoogleAp
      * menu options
      */
     public void inflateDataTablesList() {
-        showProgress();
+        showProgress(true);
         App.apiManager.getClientDataTable(new Callback<List<DataTable>>() {
             @Override
             public void success(List<DataTable> dataTables, Response response) {
                 if (dataTables != null) {
                     Iterator<DataTable> dataTableIterator = dataTables.iterator();
                     clientDataTables.clear();
-                    while (dataTableIterator.hasNext())
+                    while (dataTableIterator.hasNext()) {
                         clientDataTables.add(dataTableIterator.next());
+                    }
+
                 }
-                hideProgress();
+                showProgress(false);
             }
 
             @Override
             public void failure(RetrofitError retrofitError) {
-                hideProgress();
+                showProgress(false);
             }
         });
     }
@@ -482,7 +514,8 @@ public class ClientDetailsFragment extends MifosBaseFragment implements GoogleAp
     @Override
     public void onConnected(Bundle bundle) {
         locationAvailable.set(true);
-        Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation
+                (mGoogleApiClient);
         Log.d(TAG, "Connected to location services");
         try {
             Log.d(TAG, "Current location: " + mLastLocation.toString());
@@ -503,13 +536,15 @@ public class ClientDetailsFragment extends MifosBaseFragment implements GoogleAp
         if (connectionResult.hasResolution()) {
             try {
                 // Start an Activity that tries to resolve the error
-                connectionResult.startResolutionForResult(getActivity(), CONNECTION_FAILURE_RESOLUTION_REQUEST);
+                connectionResult.startResolutionForResult(getActivity(),
+                        CONNECTION_FAILURE_RESOLUTION_REQUEST);
                 /*
                  * Thrown if Google Play services canceled the original
                  * PendingIntent
                  */
             } catch (IntentSender.SendIntentException e) {
-                Log.e(TAG, "Connection to location services failed" + connectionResult.getErrorCode(), e);
+                Log.e(TAG, "Connection to location services failed" + connectionResult
+                        .getErrorCode(), e);
                 Toaster.show(rootView, "Connection to location services failed.");
             }
         } else { // No resolution available.
@@ -518,88 +553,54 @@ public class ClientDetailsFragment extends MifosBaseFragment implements GoogleAp
         }
     }
 
-    public void saveLocation() {
-        try {
-            if (locationAvailable.get()) {
-                final Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-                App.apiManager.sendGpsData(clientId, new GpsCoordinatesRequest(location.getLatitude(), location.getLongitude()),
-                        new Callback<GpsCoordinatesResponse>() {
-                            @Override
-                            public void success(GpsCoordinatesResponse gpsCoordinatesResponse, Response response) {
-                                Toaster.show(rootView, "Current location saved successfully: " + location.toString());
-                            }
-
-                            @Override
-                            public void failure(RetrofitError retrofitError) {
-                                /*
-                                  *  TODO:
-                                  *  1. Ask Vishwas about how to parse the error json response?
-                                  *     Does it follow a pattern that can be mapped here
-                                  *  2. Implement a proper mechanism to read the error messages and perform actions based on them
-                                  *
-                                 */
-                                if (retrofitError.getResponse().getStatus() == HttpStatus.SC_FORBIDDEN && retrofitError.getResponse().getBody().toString().contains("already exists")) {
-                                    App.apiManager.updateGpsData(clientId, new GpsCoordinatesRequest(location.getLatitude(), location.getLongitude()),
-                                            new Callback<GpsCoordinatesResponse>() {
-                                                @Override
-                                                public void success(GpsCoordinatesResponse gpsCoordinatesResponse, Response response) {
-                                                    Toaster.show(rootView, "Current location updated successfully: " + location.toString());
-                                                }
-
-                                                @Override
-                                                public void failure(RetrofitError retrofitError) {
-                                                    Toaster.show(rootView, "Current location could not be updated: " + location.toString());
-                                                }
-                                            }
-                                    );
-                                } else {
-                                    Toaster.show(rootView, "Current location could not be saved: " + location.toString());
-                                }
-                            }
-                        }
-                );
-
-            } else {
-                // Display the connection status
-                Toaster.show(rootView, "Location not available");
-                Log.w(TAG, "Location not available");
-            }
-        } catch (NullPointerException e) {
-            Toaster.show(rootView, R.string.error_save_location_not_available);
-        }
-    }
-
     public void loadDocuments() {
-        DocumentListFragment documentListFragment = DocumentListFragment.newInstance(Constants.ENTITY_TYPE_CLIENTS, clientId);
-        FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+        DocumentListFragment documentListFragment = DocumentListFragment.newInstance(Constants
+                .ENTITY_TYPE_CLIENTS, clientId);
+        FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager()
+                .beginTransaction();
         fragmentTransaction.addToBackStack(FragmentConstants.FRAG_CLIENT_DETAILS);
         fragmentTransaction.replace(R.id.container, documentListFragment);
         fragmentTransaction.commit();
     }
 
     public void loadClientCharges() {
-        ClientChargeFragment clientChargeFragment = ClientChargeFragment.newInstance(clientId,chargesList);
-        FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+        ClientChargeFragment clientChargeFragment = ClientChargeFragment.newInstance(clientId,
+                chargesList);
+        FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager()
+                .beginTransaction();
         fragmentTransaction.addToBackStack(FragmentConstants.FRAG_CLIENT_DETAILS);
         fragmentTransaction.replace(R.id.container, clientChargeFragment);
         fragmentTransaction.commit();
     }
 
     public void loadIdentifiers() {
-        ClientIdentifiersFragment clientIdentifiersFragment = ClientIdentifiersFragment.newInstance(clientId);
-        FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+        ClientIdentifiersFragment clientIdentifiersFragment = ClientIdentifiersFragment
+                .newInstance(clientId);
+        FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager()
+                .beginTransaction();
         fragmentTransaction.addToBackStack(FragmentConstants.FRAG_CLIENT_DETAILS);
         fragmentTransaction.replace(R.id.container, clientIdentifiersFragment);
         fragmentTransaction.commit();
     }
+
     public void addsavingsaccount() {
-        SavingsAccountFragment savingsAccountFragment = SavingsAccountFragment.newInstance(clientId);
-        FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+        SavingsAccountFragment savingsAccountFragment = SavingsAccountFragment.newInstance
+                (clientId);
+        FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager()
+                .beginTransaction();
         fragmentTransaction.addToBackStack(FragmentConstants.FRAG_CLIENT_DETAILS);
         fragmentTransaction.replace(R.id.container, savingsAccountFragment);
         fragmentTransaction.commit();
     }
 
+    public void addloanaccount() {
+        LoanAccountFragment loanAccountFragment = LoanAccountFragment.newInstance(clientId);
+        FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager()
+                .beginTransaction();
+        fragmentTransaction.addToBackStack(FragmentConstants.FRAG_CLIENT_DETAILS);
+        fragmentTransaction.replace(R.id.container, loanAccountFragment);
+        fragmentTransaction.commit();
+    }
 
     public interface OnFragmentInteractionListener {
         void loadLoanAccountSummary(int loanAccountNumber);
@@ -609,13 +610,36 @@ public class ClientDetailsFragment extends MifosBaseFragment implements GoogleAp
 
 
     private static class AccountAccordion {
+        private final Activity context;
+        private Section currentSection;
+
+        private AccountAccordion(Activity context) {
+            this.context = context;
+            Section.configure(context, this);
+        }
+
+        public void setCurrentSection(Section currentSection) {
+            // close previous section
+            if (this.currentSection != null) {
+                this.currentSection.close(context);
+            }
+
+            this.currentSection = currentSection;
+
+            // open new section
+            if (this.currentSection != null) {
+                this.currentSection.open(context);
+            }
+        }
+
         private enum Section {
             LOANS(R.id.account_accordion_section_loans, R.string.loanAccounts),
             SAVINGS(R.id.account_accordion_section_savings, R.string.savingAccounts),
             RECURRING(R.id.account_accordion_section_recurring, R.string.recurringAccount);
 
             private static final MaterialIcons LIST_OPEN_ICON = MaterialIcons.md_add_circle_outline;
-            private static final MaterialIcons LIST_CLOSED_ICON = MaterialIcons.md_remove_circle_outline;
+            private static final MaterialIcons LIST_CLOSED_ICON = MaterialIcons
+                    .md_remove_circle_outline;
 
             private final int sectionId;
             private final int textViewStringId;
@@ -625,12 +649,19 @@ public class ClientDetailsFragment extends MifosBaseFragment implements GoogleAp
                 this.textViewStringId = textViewStringId;
             }
 
+            public static void configure(Activity context, final AccountAccordion accordion) {
+                for (Section section : Section.values()) {
+                    section.configureSection(context, accordion);
+                }
+            }
+
             public TextView getTextView(Activity context) {
                 return (TextView) getSectionView(context).findViewById(R.id.tv_toggle_accounts);
             }
 
             public IconTextView getIconView(Activity context) {
-                return (IconTextView) getSectionView(context).findViewById(R.id.tv_toggle_accounts_icon);
+                return (IconTextView) getSectionView(context).findViewById(R.id
+                        .tv_toggle_accounts_icon);
             }
 
             public ListView getListView(Activity context) {
@@ -645,7 +676,8 @@ public class ClientDetailsFragment extends MifosBaseFragment implements GoogleAp
                 return context.findViewById(this.sectionId);
             }
 
-            public void connect(Activity context, ListAdapter adapter, AdapterView.OnItemClickListener onItemClickListener) {
+            public void connect(Activity context, ListAdapter adapter, AdapterView
+                    .OnItemClickListener onItemClickListener) {
                 getCountView(context).setText(String.valueOf(adapter.getCount()));
                 ListView listView = getListView(context);
                 listView.setAdapter(adapter);
@@ -703,34 +735,6 @@ public class ClientDetailsFragment extends MifosBaseFragment implements GoogleAp
                 // initialize section in closed state
                 close(context);
             }
-
-            public static void configure(Activity context, final AccountAccordion accordion) {
-                for (Section section : Section.values()) {
-                    section.configureSection(context, accordion);
-                }
-            }
-        }
-
-        private final Activity context;
-        private Section currentSection;
-
-        private AccountAccordion(Activity context) {
-            this.context = context;
-            Section.configure(context, this);
-        }
-
-        public void setCurrentSection(Section currentSection) {
-            // close previous section
-            if (this.currentSection != null) {
-                this.currentSection.close(context);
-            }
-
-            this.currentSection = currentSection;
-
-            // open new section
-            if (this.currentSection != null) {
-                this.currentSection.open(context);
-            }
         }
     }
 
@@ -752,10 +756,13 @@ public class ClientDetailsFragment extends MifosBaseFragment implements GoogleAp
                     + "/images?maxHeight=120&maxWidth=120";
 
             try {
-                HttpURLConnection httpURLConnection = (HttpURLConnection) (new URL(url)).openConnection();
+                HttpURLConnection httpURLConnection = (HttpURLConnection) (new URL(url))
+                        .openConnection();
                 httpURLConnection.setRequestMethod("GET");
-                httpURLConnection.setRequestProperty(ApiRequestInterceptor.HEADER_TENANT, "default");
-                httpURLConnection.setRequestProperty(ApiRequestInterceptor.HEADER_AUTH, PrefManager.getToken());
+                httpURLConnection.setRequestProperty(ApiRequestInterceptor.HEADER_TENANT,
+                        "default");
+                httpURLConnection.setRequestProperty(ApiRequestInterceptor.HEADER_AUTH,
+                        PrefManager.getToken());
                 httpURLConnection.setRequestProperty("Accept", "application/octet-stream");
                 httpURLConnection.setDoInput(true);
                 httpURLConnection.connect();
@@ -768,12 +775,18 @@ public class ClientDetailsFragment extends MifosBaseFragment implements GoogleAp
             return null;
         }
 
+        @SuppressWarnings("deprecation")
         @Override
         protected void onPostExecute(Void aVoid) {
-            if (bmp != null) iv_clientImage.setImageBitmap(bmp);
-            else
-                iv_clientImage.setImageDrawable(getResources().getDrawable(R.drawable.ic_launcher));
-            pb_imageProgressBar.setVisibility(GONE);
+            if (bmp != null) {
+                iv_clientImage.setImageBitmap(bmp);
+            } else {
+                iv_clientImage.setImageDrawable(
+                        ResourcesCompat.getDrawable(getResources(),
+                                R.drawable.ic_launcher, null));
+                pb_imageProgressBar.setVisibility(GONE);
+            }
+
         }
     }
 

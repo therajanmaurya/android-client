@@ -15,12 +15,14 @@ import com.mifos.objects.client.Client;
 
 import java.util.List;
 
-public class CentersActivity extends MifosBaseActivity implements CenterListFragment.OnFragmentInteractionListener, GroupListFragment.OnFragmentInteractionListener {
+public class CentersActivity extends MifosBaseActivity implements CenterListFragment
+        .OnFragmentInteractionListener, GroupListFragment.OnFragmentInteractionListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_toolbar_container);
+        showBackButton();
         replaceFragment(new CenterListFragment(), false, R.id.container);
     }
 
@@ -41,8 +43,10 @@ public class CentersActivity extends MifosBaseActivity implements CenterListFrag
     }
 
     @Override
-    public void loadCollectionSheetForCenter(int centerId, String collectionDate, int calenderInstanceId) {
-        replaceFragment(CollectionSheetFragment.newInstance(centerId, collectionDate, calenderInstanceId), true, R.id.container);
+    public void loadCollectionSheetForCenter(int centerId, String collectionDate, int
+            calenderInstanceId) {
+        replaceFragment(CollectionSheetFragment.newInstance(centerId, collectionDate,
+                calenderInstanceId), true, R.id.container);
     }
 
     @Override

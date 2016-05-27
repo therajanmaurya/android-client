@@ -14,8 +14,7 @@ import com.orm.query.Select;
 
 import java.util.List;
 
-public class MifosGroup extends SugarRecord<MifosGroup>
-{
+public class MifosGroup extends SugarRecord<MifosGroup> {
     public int staffId;
     public String staffName;
     public int levelId;
@@ -27,13 +26,12 @@ public class MifosGroup extends SugarRecord<MifosGroup>
     private List<Client> clients;
 
     @Ignore
-    public List<Client> getClients()
-    {
+    public List<Client> getClients() {
         return clients;
     }
+
     @Ignore
-    public void setClients(List<Client> clients)
-    {
+    public void setClients(List<Client> clients) {
         this.clients = clients;
     }
 
@@ -43,27 +41,24 @@ public class MifosGroup extends SugarRecord<MifosGroup>
     }
 
     public boolean isNew() {
-        long count = Select.from(MifosGroup.class).where(Condition.prop("group_id").eq(groupId)).count();
+        long count = Select.from(MifosGroup.class).where(Condition.prop("group_id").eq(groupId))
+                .count();
         return count == 0;
     }
 
-    public String getGroupName()
-    {
+    public String getGroupName() {
         return groupName;
     }
 
-    public void setGroupName(String groupName)
-    {
+    public void setGroupName(String groupName) {
         this.groupName = groupName;
     }
 
-    public long getGroupId()
-    {
+    public long getGroupId() {
         return groupId;
     }
 
-    public void setGroupId(long groupId)
-    {
+    public void setGroupId(long groupId) {
         this.groupId = groupId;
     }
 

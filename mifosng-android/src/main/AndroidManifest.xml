@@ -15,6 +15,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
@@ -39,21 +40,27 @@
             android:label="@string/login"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".online.DashboardFragmentActivity"
+            android:name=".online.DashboardActivity"
             android:label="@string/dashboard"
+            android:theme="@style/TraslucentActionBarTheme"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".online.SurveyQuestion"
+            android:name=".online.SurveyQuestionViewPager"
             android:label="Survey"
             android:screenOrientation="portrait" />
         <activity
             android:name=".GroupActivity"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="portrait" />
-        <activity
+          <activity
             android:name=".ClientActivity"
             android:configChanges="orientation|screenSize"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".online.GroupsActivity"
+            android:configChanges="orientation|screenSize"
+            android:screenOrientation="portrait" />
+
         <activity
             android:name=".LoanActivity"
             android:configChanges="orientation|screenSize"
@@ -67,30 +74,55 @@
         <activity
             android:name=".OfflineCenterInputActivity"
             android:label="Offline Center Input"
-            android:parentActivityName=".online.DashboardFragmentActivity"
+            android:parentActivityName=".online.DashboardActivity"
             android:screenOrientation="portrait" />
 
         <activity
             android:name=".online.CentersActivity"
             android:label="@string/title_activity_centers"
-            android:parentActivityName=".online.DashboardFragmentActivity">
+            android:parentActivityName=".online.DashboardActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.mifos.mifosxdroid.online.DashboardFragmentActivity" />
+                android:value=".online.DashboardActivity" />
         </activity>
 
 
         <activity
             android:name=".online.GenerateCollectionSheet"
             android:label="@string/title_activity_generate_collection_sheet"
-            android:parentActivityName=".online.DashboardFragmentActivity">
+            android:parentActivityName=".online.DashboardActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.mifos.mifosxdroid.online.DashboardFragmentActivity" />
+                android:value=".online.DashboardActivity" />
         </activity>
         <activity
             android:name=".CenterListActivity"
+            android:label="@string/centers"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".ClientListActivity"
+            android:label="@string/clients"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".GroupListActivity"
+            android:label="@string/groups"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".SurveyActivity"
+            android:label="@string/survey"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.PinpointClientActivity"
+            android:label="@string/pinpoint"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".activity.PathTrackingActivity"
+            android:label="@string/track_path"
+            android:screenOrientation="portrait" />
+
+
+        <service android:name=".LocationService" />
 
         <meta-data
             android:name="DATABASE"
@@ -115,6 +147,9 @@
             android:name="com.crashlytics.ApiKey"
             android:value="b781afbde2e7db1df8455861d3f5d59c158f3bff" />
 
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyAfMi31d35olEcgYDRTB28gXV8kbH7LOMw" />
     </application>
 
 </manifest>

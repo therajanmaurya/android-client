@@ -29,24 +29,18 @@ import com.mifos.exceptions.InvalidTextInputException;
 import com.mifos.exceptions.RequiredFieldException;
 import com.mifos.exceptions.ShortOfLengthException;
 import com.mifos.mifosxdroid.R;
-import com.mifos.mifosxdroid.core.MifosBaseFragment;
+import com.mifos.mifosxdroid.core.ProgressableFragment;
 import com.mifos.mifosxdroid.core.util.Toaster;
 import com.mifos.mifosxdroid.uihelpers.MFDatePicker;
 import com.mifos.objects.client.Client;
-import com.mifos.objects.organisation.ClientClassificationOptions;
-import com.mifos.objects.organisation.ClientTypeOptions;
-import com.mifos.objects.organisation.GenderOptions;
 import com.mifos.objects.organisation.Office;
+import com.mifos.objects.organisation.Staff;
+import com.mifos.objects.templates.clients.ClientsTemplate;
+import com.mifos.objects.templates.clients.Options;
 import com.mifos.utils.DateHelper;
 import com.mifos.utils.FragmentConstants;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -59,10 +53,12 @@ import retrofit.RetrofitError;
 import retrofit.client.Response;
 
 
-public class CreateNewClientFragment extends MifosBaseFragment implements MFDatePicker.OnDatePickListener {
+public class CreateNewClientFragment extends ProgressableFragment implements MFDatePicker
+        .OnDatePickListener {
 
-    private static final String TAG = "CreateNewClient";
-
+    private final String LOG_TAG = getClass().getSimpleName();
+    public DialogFragment mfDatePicker;
+    public DialogFragment newDatePicker;
     @InjectView(R.id.et_client_first_name)
     EditText et_clientFirstName;
     @InjectView(R.id.et_client_last_name)
@@ -91,7 +87,6 @@ public class CreateNewClientFragment extends MifosBaseFragment implements MFDate
     Spinner spClientClassification;
     @InjectView(R.id.bt_submit)
     Button bt_submit;
-
     int officeId;
     int clientTypeId;
     int staffId;
@@ -101,13 +96,14 @@ public class CreateNewClientFragment extends MifosBaseFragment implements MFDate
     View rootView;
     String dateString;
     String dateofbirthstring;
-    private DialogFragment mfDatePicker;
-    private DialogFragment newDatePicker;
     private HashMap<String, Integer> officeNameIdHashMap = new HashMap<String, Integer>();
     private HashMap<String, Integer> staffNameIdHashMap = new HashMap<String, Integer>();
     private HashMap<String, Integer> genderNameIdHashMap = new HashMap<String, Integer>();
     private HashMap<String, Integer> clientTypeNameIdHashMap = new HashMap<String, Integer>();
-    private HashMap<String, Integer> clientClassificationNameIdHashMap = new HashMap<String, Integer>();
+    private HashMap<String, Integer> clientClassificationNameIdHashMap = new HashMap<String,
+            Integer>();
+    private ClientsTemplate clientstemplate = new ClientsTemplate();
+    private View mCurrentDateView;    // the view whose click opened the date picker
 
     public static CreateNewClientFragment newInstance() {
         CreateNewClientFragment createNewClientFragment = new CreateNewClientFragment();
@@ -127,19 +123,19 @@ public class CreateNewClientFragment extends MifosBaseFragment implements MFDate
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
+            savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_create_new_client, null);
         ButterKnife.inject(this, rootView);
 
         inflateOfficeSpinner();
         inflateSubmissionDate();
         inflateDateofBirth();
-        inflateGenderSpinner();
-        inflateClientTypeOptions();
-        inflateClientClassificationOptions();
+        getClientTemplate();
 
         //client active checkbox onCheckedListener
-        cb_clientActiveStatus.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        cb_clientActiveStatus.setOnCheckedChangeListener(new CompoundButton
+                .OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 tv_submissionDate.setVisibility(isChecked ? View.VISIBLE : View.GONE);
@@ -147,9 +143,11 @@ public class CreateNewClientFragment extends MifosBaseFragment implements MFDate
         });
 
         dateString = tv_submissionDate.getText().toString();
-        dateString = DateHelper.getDateAsStringUsedForCollectionSheetPayload(dateString).replace("-", " ");
+        dateString = DateHelper.getDateAsStringUsedForCollectionSheetPayload(dateString).replace
+                ("-", " ");
         dateofbirthstring = tv_dateofbirth.getText().toString();
-        dateofbirthstring = DateHelper.getDateAsStringUsedForDateofBirth(dateofbirthstring).replace("-", " ");
+        dateofbirthstring = DateHelper.getDateAsStringUsedForDateofBirth(dateofbirthstring)
+                .replace("-", " ");
         bt_submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -175,200 +173,159 @@ public class CreateNewClientFragment extends MifosBaseFragment implements MFDate
     }
 
     private void inflateGenderSpinner() {
-        showProgress();
-        App.apiManager.getClientTemplate(new Callback<Response>() {
+        final ArrayList<String> genderNames = filterListObject(clientstemplate.getGenderOptions());
+        ArrayAdapter<String> genderAdapter = new ArrayAdapter<String>(getActivity(),
+                android.R.layout.simple_spinner_item, genderNames);
+        genderAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spGender.setAdapter(genderAdapter);
+        spGender.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
             @Override
-            public void success(Response result, Response response) {
-                // you can use this array to find the gender ID based on name
-                final ArrayList<GenderOptions> genderOption = new ArrayList<GenderOptions>();
-                // you can use this array to populate your spinner
-                final ArrayList<String> genderNames = new ArrayList<String>();
-                //Try to get response body
-                BufferedReader reader = null;
-                StringBuilder sb = new StringBuilder();
-                String line;
-                try {
-                    reader = new BufferedReader(new InputStreamReader(result.getBody().in()));
-                    while ((line = reader.readLine()) != null) {
-                        sb.append(line);
-                    }
-                    JSONObject obj = new JSONObject(sb.toString());
-                    if (obj.has("genderOptions")) {
-                        JSONArray genderOptions = obj.getJSONArray("genderOptions");
-                        for (int i = 0; i < genderOptions.length(); i++) {
-                            JSONObject genderObject = genderOptions.getJSONObject(i);
-                            GenderOptions gender = new GenderOptions();
-                            gender.setId(genderObject.optInt("id"));
-                            gender.setName(genderObject.optString("name"));
-                            genderOption.add(gender);
-                            genderNames.add(genderObject.optString("name"));
-                            genderNameIdHashMap.put(gender.getName(), gender.getId());
-                        }
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                genderId = clientstemplate.getGenderOptions().get(i).getId();
+                Log.d("genderId " + genderNames.get(i), String.valueOf(genderId));
+                if (genderId != -1) {
 
-                    }
-                    String stringResult = sb.toString();
-                } catch (Exception e) {
-                    Log.e(TAG, "", e);
+
+                } else {
+                    Toast.makeText(getActivity(), getString(R.string.error_select_office), Toast
+                            .LENGTH_SHORT).show();
                 }
-                ArrayAdapter<String> genderAdapter = new ArrayAdapter<String>(getActivity(),
-                        android.R.layout.simple_spinner_item, genderNames);
-                genderAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                spGender.setAdapter(genderAdapter);
-                spGender.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-
-                    @Override
-                    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                        genderId = genderNameIdHashMap.get(genderNames.get(i));
-                        Log.d("genderId " + genderNames.get(i), String.valueOf(genderId));
-                        if (genderId != -1) {
-
-
-                        } else {
-                            Toast.makeText(getActivity(), getString(R.string.error_select_office), Toast.LENGTH_SHORT).show();
-                        }
-                    }
-
-                    @Override
-                    public void onNothingSelected(AdapterView<?> parent) {
-
-                    }
-                });
-                hideProgress();
             }
 
             @Override
-            public void failure(RetrofitError retrofitError) {
-                hideProgress();
+            public void onNothingSelected(AdapterView<?> parent) {
+
             }
         });
 
     }
 
     private void inflateClientClassificationOptions() {
-        App.apiManager.getClientTemplate(new Callback<Response>() {
+        final ArrayList<String> ClientClassificationNames = filterListObject(clientstemplate
+                .getClientClassificationOptions());
+        ArrayAdapter<String> ClientClassificationAdapter = new ArrayAdapter<String>(getActivity(),
+                android.R.layout.simple_spinner_item, ClientClassificationNames);
+        ClientClassificationAdapter.setDropDownViewResource(android.R.layout
+                .simple_spinner_dropdown_item);
+        spClientClassification.setAdapter(ClientClassificationAdapter);
+        spClientClassification.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
             @Override
-            public void success(Response result, Response response) {
-                Log.d(TAG, "");
-                // you can use this array to find the gender ID based on name
-                final List<ClientClassificationOptions> clientClassificationOptions = new ArrayList<ClientClassificationOptions>();
-                // you can use this array to populate your spinner
-                final ArrayList<String> ClientClassificationNames = new ArrayList<String>();
-                //Try to get response body
-                BufferedReader reader = null;
-                StringBuilder sb = new StringBuilder();
-                try {
-                    reader = new BufferedReader(new InputStreamReader(result.getBody().in()));
-                    String line;
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                clientClassificationId = clientstemplate.getClientClassificationOptions()
+                        .get(i).getId();
+                Log.d("clientClassificationId" + ClientClassificationNames.get(i), String.valueOf
+                        (clientClassificationId));
+                if (clientClassificationId != -1) {
 
-                    while ((line = reader.readLine()) != null) {
-                        sb.append(line);
-                    }
+                } else {
 
+                    Toast.makeText(getActivity(), getString(R.string.error_select_client_type),
+                            Toast.LENGTH_SHORT).show();
 
-                    JSONObject obj = new JSONObject(sb.toString());
-                    if (obj.has("clientClassificationOptions")) {
-                        JSONArray clientClassification = obj.getJSONArray("clientClassificationOptions");
-                        for (int i = 0; i < clientClassification.length(); i++) {
-                            JSONObject clientClassificationObject = clientClassification.getJSONObject(i);
-
-                            ClientClassificationOptions clientClassifications = new ClientClassificationOptions();
-                            clientClassifications.setId(clientClassificationObject.optInt("id"));
-                            clientClassifications.setName(clientClassificationObject.optString("name"));
-
-                            clientClassificationOptions.add(clientClassifications);
-                            ClientClassificationNames.add(clientClassificationObject.optString("name"));
-                            clientClassificationNameIdHashMap.put(clientClassifications.getName(), clientClassifications.getId());
-                        }
-
-
-                    }
-                    String stringResult = sb.toString();
-                } catch (Exception e) {
-                    Log.e(TAG, "", e);
                 }
-                ArrayAdapter<String> ClientClassificationAdapter = new ArrayAdapter<String>(getActivity(),
-                        android.R.layout.simple_spinner_item, ClientClassificationNames);
-                ClientClassificationAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                spClientClassification.setAdapter(ClientClassificationAdapter);
-                spClientClassification.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 
-                    @Override
-                    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                        clientClassificationId = clientClassificationNameIdHashMap.get(ClientClassificationNames.get(i));
-                        Log.d("clientClassificationId" + ClientClassificationNames.get(i), String.valueOf(clientClassificationId));
-                        if (clientClassificationId != -1) {
-
-                        } else {
-
-                            Toast.makeText(getActivity(), getString(R.string.error_select_client_type), Toast.LENGTH_SHORT).show();
-
-                        }
-
-                    }
-
-                    @Override
-                    public void onNothingSelected(AdapterView<?> parent) {
-
-                    }
-                });
-                hideProgress();
             }
 
             @Override
-            public void failure(RetrofitError retrofitError) {
-                hideProgress();
+            public void onNothingSelected(AdapterView<?> parent) {
+
             }
         });
     }
 
     private void inflateClientTypeOptions() {
-        App.apiManager.getClientTemplate(new Callback<Response>() {
-            @Override
+        final ArrayList<String> ClientTypeNames = filterListObject(clientstemplate
+                .getClientTypeOptions());
+        final ArrayAdapter<String> clientTypeAdapter = new ArrayAdapter<String>(getActivity(),
+                android.R.layout.simple_spinner_item, ClientTypeNames);
+        clientTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spClientType.setAdapter(clientTypeAdapter);
+        spClientType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 
-            public void success(final Response result, Response response) {
-                final List<ClientTypeOptions> clienttypeoptions = new ArrayList<ClientTypeOptions>();
-                // you can use this array to populate your spinner
-                final ArrayList<String> ClientTypeNames = new ArrayList<String>();
-                //Try to get response body
-                BufferedReader reader = null;
-                StringBuilder sb = new StringBuilder();
-                try {
-                    reader = new BufferedReader(new InputStreamReader(result.getBody().in()));
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        sb.append(line);
-                    }
-                    JSONObject obj = new JSONObject(sb.toString());
-                    if (obj.has("clientTypeOptions")) {
-                        JSONArray clientTypeOptions = obj.getJSONArray("clientTypeOptions");
-                        for (int i = 0; i < clientTypeOptions.length(); i++) {
-                            JSONObject clientTypeObject = clientTypeOptions.getJSONObject(i);
-                            ClientTypeOptions clienttype = new ClientTypeOptions();
-                            clienttype.setId(clientTypeObject.optInt("id"));
-                            clienttype.setName(clientTypeObject.optString("name"));
-                            clienttypeoptions.add(clienttype);
-                            ClientTypeNames.add(clientTypeObject.optString("name"));
-                            clientTypeNameIdHashMap.put(clienttype.getName(), clienttype.getId());
-                        }
-                    }
-                    String stringResult = sb.toString();
-                } catch (Exception e) {
-                    Log.e(TAG, "", e);
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                clientTypeId = clientstemplate.getClientTypeOptions().get(i).getId();
+                Log.d("clientTypeId " + ClientTypeNames.get(i), String.valueOf(clientTypeId));
+                if (clientTypeId != -1) {
+                } else {
+                    Toast.makeText(getActivity(), getString(R.string.error_select_office), Toast
+                            .LENGTH_SHORT).show();
                 }
-                final ArrayAdapter<String> clientTypeAdapter = new ArrayAdapter<String>(getActivity(),
-                        android.R.layout.simple_spinner_item, ClientTypeNames);
-                clientTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                spClientType.setAdapter(clientTypeAdapter);
-                spClientType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+    }
+
+    private void getClientTemplate() {
+        showProgress(true);
+        App.apiManager.getClientTemplate(new Callback<ClientsTemplate>() {
+            @Override
+            public void success(ClientsTemplate clientsTemplate, Response response) {
+                /* Activity is null - Fragment has been detached; no need to do anything. */
+                if (getActivity() == null) return;
+
+                if (response.getStatus() == 200) {
+                    clientstemplate = clientsTemplate;
+                    inflateGenderSpinner();
+                    inflateClientTypeOptions();
+                    inflateClientClassificationOptions();
+                }
+                showProgress(false);
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                showProgress(false);
+            }
+        });
+    }
+
+    //inflating office list spinner
+    private void inflateOfficeSpinner() {
+        showProgress(true);
+        App.apiManager.getOffices(new Callback<List<Office>>() {
+            @Override
+            public void success(List<Office> offices, Response response) {
+                /* Activity is null - Fragment has been detached; no need to do anything. */
+                if (getActivity() == null) return;
+
+                final List<String> officeList = new ArrayList<String>();
+
+                for (Office office : offices) {
+                    officeList.add(office.getName());
+                    officeNameIdHashMap.put(office.getName(), office.getId());
+                }
+                ArrayAdapter<String> officeAdapter = new ArrayAdapter<String>(getActivity(),
+                        android.R.layout.simple_spinner_item, officeList);
+                officeAdapter.setDropDownViewResource(android.R.layout
+                        .simple_spinner_dropdown_item);
+                sp_offices.setAdapter(officeAdapter);
+                sp_offices.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 
                     @Override
-                    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                        clientTypeId = clientTypeNameIdHashMap.get(ClientTypeNames.get(i));
-                        Log.d("clientTypeId " + ClientTypeNames.get(i), String.valueOf(clientTypeId));
-                        if (clientTypeId != -1) {
+                    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long
+                            l) {
+                        officeId = officeNameIdHashMap.get(officeList.get(i));
+                        Log.d("officeId " + officeList.get(i), String.valueOf(officeId));
+                        if (officeId != -1) {
+
+                            inflateStaffSpinner(officeId);
+
+
                         } else {
-                            Toast.makeText(getActivity(), getString(R.string.error_select_office), Toast.LENGTH_SHORT).show();
+
+                            Toast.makeText(getActivity(), getString(R.string.error_select_office)
+                                    , Toast.LENGTH_SHORT).show();
+
                         }
+
                     }
 
                     @Override
@@ -376,63 +333,66 @@ public class CreateNewClientFragment extends MifosBaseFragment implements MFDate
 
                     }
                 });
-                hideProgress();
+
+
             }
 
             @Override
             public void failure(RetrofitError retrofitError) {
-                hideProgress();
+
+                Log.d(LOG_TAG, retrofitError.getLocalizedMessage());
             }
         });
 
     }
 
-    //inflating office list spinner
-    private void inflateOfficeSpinner() {
-        showProgress();
-        App.apiManager.getOffices(new Callback<List<Office>>() {
-                                      @Override
-                                      public void success(List<Office> offices, Response response) {
-                                          final List<String> officeList = new ArrayList<String>();
+    public void inflateStaffSpinner(final int officeId) {
 
-                                          for (Office office : offices) {
-                                              officeList.add(office.getName());
-                                              officeNameIdHashMap.put(office.getName(), office.getId());
-                                          }
-                                          ArrayAdapter<String> officeAdapter = new ArrayAdapter<String>(getActivity(),
-                                                  android.R.layout.simple_spinner_item, officeList);
-                                          officeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                                          sp_offices.setAdapter(officeAdapter);
-                                          sp_offices.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        App.apiManager.getStaffInOffice(officeId, new Callback<List<Staff>>() {
+            @Override
+            public void success(List<Staff> staffs, Response response) {
 
-                                              @Override
-                                              public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                                                  officeId = officeNameIdHashMap.get(officeList.get(i));
-                                                  Log.d("officeId " + officeList.get(i), String.valueOf(officeId));
-                                              }
+                final List<String> staffNames = new ArrayList<String>();
+                for (Staff staff : staffs) {
+                    staffNames.add(staff.getDisplayName());
+                    staffNameIdHashMap.put(staff.getDisplayName(), staff.getId());
+                }
+                ArrayAdapter<String> staffAdapter = new ArrayAdapter<String>(getActivity(),
+                        android.R.layout.simple_spinner_item, staffNames);
+                staffAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                sp_staff.setAdapter(staffAdapter);
+                sp_staff.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position,
+                                               long id) {
 
-                                              @Override
-                                              public void onNothingSelected(AdapterView<?> adapterView) {
+                        staffId = staffNameIdHashMap.get(staffNames.get(position));
+                        Log.d("staffId " + staffNames.get(position), String.valueOf(staffId));
+                        if (staffId != -1) {
 
-                                              }
-                                          });
-                                          hideProgress();
-                                      }
+                        } else {
+                            Toast.makeText(getActivity(), getString(R.string.error_select_staff),
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    }
 
-                                      @Override
-                                      public void failure(RetrofitError error) {
-                                          hideProgress();
-                                      }
-                                  }
-        );
+                    @Override
+                    public void onNothingSelected(AdapterView<?> adapterView) {
+
+                    }
+
+                });
+            }
+
+            @Override
+            public void failure(RetrofitError error) {
+                Log.d(LOG_TAG, error.getLocalizedMessage());
+
+            }
+        });
     }
 
     private void initiateClientCreation(ClientPayload clientPayload) {
-        //Date validation : check for date less than or equal to current date
-        if (!isValidDate()) {
-            Toaster.show(rootView, "Date cannot be in future");
-            return;
-        }
 
         if (!isValidFirstName()) {
             return;
@@ -440,31 +400,19 @@ public class CreateNewClientFragment extends MifosBaseFragment implements MFDate
         if (!isValidMiddleName()) {
             return;
         }
-        if (!isValidLastName()) {
-            return;
-        }
-        if (!isValidMobileNo()) {
-            return;
-        }
-        //Date validation : check for date less than or equal to current date
-        if (!isValidDate()) {
-            Toast.makeText(getActivity(), "Date cannot be in future", Toast.LENGTH_LONG).show();
-        }
-        if (!isValidDateofBirth()) {
-            Toast.makeText(getActivity(), "Date cannot be in future", Toast.LENGTH_LONG).show();
+        if (isValidLastName()) {
 
-        } else {
-            showProgress();
+            showProgress(true);
             App.apiManager.createClient(clientPayload, new Callback<Client>() {
                 @Override
                 public void success(Client client, Response response) {
-                    hideProgress();
+                    showProgress(false);
                     Toaster.show(rootView, "Client created successfully");
                 }
 
                 @Override
                 public void failure(RetrofitError error) {
-                    hideProgress();
+                    showProgress(false);
                     Toaster.show(rootView, "Error creating client");
                 }
             });
@@ -478,7 +426,9 @@ public class CreateNewClientFragment extends MifosBaseFragment implements MFDate
         tv_submissionDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mfDatePicker.show(getActivity().getSupportFragmentManager(), FragmentConstants.DFRAG_DATE_PICKER);
+                mfDatePicker.show(getActivity().getSupportFragmentManager(), FragmentConstants
+                        .DFRAG_DATE_PICKER);
+                mCurrentDateView = tv_submissionDate;
             }
         });
 
@@ -492,7 +442,9 @@ public class CreateNewClientFragment extends MifosBaseFragment implements MFDate
         tv_dateofbirth.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                newDatePicker.show(getActivity().getSupportFragmentManager(), FragmentConstants.DFRAG_DATE_PICKER);
+                newDatePicker.show(getActivity().getSupportFragmentManager(), FragmentConstants
+                        .DFRAG_DATE_PICKER);
+                mCurrentDateView = tv_dateofbirth;
             }
 
         });
@@ -501,21 +453,28 @@ public class CreateNewClientFragment extends MifosBaseFragment implements MFDate
     }
 
     public void onDatePicked(String date) {
-        tv_submissionDate.setText(date);
-        tv_dateofbirth.setText(date);
+        if (mCurrentDateView != null && mCurrentDateView == tv_submissionDate) {
+            tv_submissionDate.setText(date);
+        } else if (mCurrentDateView != null && mCurrentDateView == tv_dateofbirth) {
+            tv_dateofbirth.setText(date);
+        }
 
     }
 
     public boolean isValidFirstName() {
         try {
             if (TextUtils.isEmpty(et_clientFirstName.getEditableText().toString())) {
-                throw new RequiredFieldException(getResources().getString(R.string.first_name), getResources().getString(R.string.error_cannot_be_empty));
+                throw new RequiredFieldException(getResources().getString(R.string.first_name),
+                        getResources().getString(R.string.error_cannot_be_empty));
             }
-            if (et_clientFirstName.getEditableText().toString().trim().length() < 4 && et_clientFirstName.getEditableText().toString().trim().length() > 0) {
+            if (et_clientFirstName.getEditableText().toString().trim().length() < 4 &&
+                    et_clientFirstName.getEditableText().toString().trim().length() > 0) {
                 throw new ShortOfLengthException(getResources().getString(R.string.first_name), 4);
             }
             if (!et_clientFirstName.getEditableText().toString().matches("[a-zA-Z]+")) {
-                throw new InvalidTextInputException(getResources().getString(R.string.first_name), getResources().getString(R.string.error_should_contain_only), InvalidTextInputException.TYPE_ALPHABETS);
+                throw new InvalidTextInputException(getResources().getString(R.string.first_name)
+                        , getResources().getString(R.string.error_should_contain_only),
+                        InvalidTextInputException.TYPE_ALPHABETS);
             }
         } catch (InvalidTextInputException e) {
             e.notifyUserWithToast(getActivity());
@@ -532,23 +491,12 @@ public class CreateNewClientFragment extends MifosBaseFragment implements MFDate
 
     public boolean isValidMiddleName() {
         try {
-            if (TextUtils.isEmpty(et_clientMiddleName.getEditableText().toString())) {
-                throw new RequiredFieldException(getResources().getString(R.string.middle_name), getResources().getString(R.string.error_cannot_be_empty));
-            }
-
-            if (et_clientMiddleName.getEditableText().toString().trim().length() < 4 && et_clientMiddleName.getEditableText().toString().trim().length() > 0) {
-                throw new ShortOfLengthException(getResources().getString(R.string.middle_name), 4);
-            }
             if (!et_clientMiddleName.getEditableText().toString().matches("[a-zA-Z]+")) {
-                throw new InvalidTextInputException(getResources().getString(R.string.middle_name), getResources().getString(R.string.error_should_contain_only), InvalidTextInputException.TYPE_ALPHABETS);
+                throw new InvalidTextInputException(getResources().getString(R.string
+                        .middle_name), getResources().getString(R.string
+                        .error_should_contain_only), InvalidTextInputException.TYPE_ALPHABETS);
             }
         } catch (InvalidTextInputException e) {
-            e.notifyUserWithToast(getActivity());
-            result = false;
-        } catch (ShortOfLengthException e) {
-            e.notifyUserWithToast(getActivity());
-            result = false;
-        } catch (RequiredFieldException e) {
             e.notifyUserWithToast(getActivity());
             result = false;
         }
@@ -560,15 +508,19 @@ public class CreateNewClientFragment extends MifosBaseFragment implements MFDate
         result = true;
         try {
             if (TextUtils.isEmpty(et_clientLastName.getEditableText().toString())) {
-                throw new RequiredFieldException(getResources().getString(R.string.last_name), getResources().getString(R.string.error_cannot_be_empty));
+                throw new RequiredFieldException(getResources().getString(R.string.last_name),
+                        getResources().getString(R.string.error_cannot_be_empty));
             }
 
-            if (et_clientLastName.getEditableText().toString().trim().length() < 4 && et_clientFirstName.getEditableText().toString().trim().length() > 0) {
+            if (et_clientLastName.getEditableText().toString().trim().length() < 4 &&
+                    et_clientFirstName.getEditableText().toString().trim().length() > 0) {
                 throw new ShortOfLengthException(getResources().getString(R.string.last_name), 4);
             }
 
             if (!et_clientLastName.getEditableText().toString().matches("[a-zA-Z]+")) {
-                throw new InvalidTextInputException(getResources().getString(R.string.last_name), getResources().getString(R.string.error_should_contain_only), InvalidTextInputException.TYPE_ALPHABETS);
+                throw new InvalidTextInputException(getResources().getString(R.string.last_name),
+                        getResources().getString(R.string.error_should_contain_only),
+                        InvalidTextInputException.TYPE_ALPHABETS);
             }
 
         } catch (InvalidTextInputException e) {
@@ -585,33 +537,6 @@ public class CreateNewClientFragment extends MifosBaseFragment implements MFDate
         return result;
     }
 
-    public boolean isValidDate() {
-
-        List<Integer> date1 = DateHelper.getCurrentDateAsListOfIntegers();
-        List<Integer> date2 = DateHelper.getDateList(tv_submissionDate.getText().toString(), "-");
-
-        Collections.reverse(date2);
-        int i = DateHelper.dateComparator(date1, date2);
-        if (i == -1) {
-            result = false;
-        }
-        return result;
-    }
-
-    public boolean isValidDateofBirth() {
-
-        List<Integer> date1 = new ArrayList<>();
-        List<Integer> date2 = new ArrayList<>();
-        date1 = DateHelper.getCurrentDateAsListOfIntegers();
-        date2 = DateHelper.getDateList(tv_dateofbirth.getText().toString(), "-");
-
-        Collections.reverse(date2);
-        int i = DateHelper.dateComparator(date1, date2);
-        if (i == -1) {
-            result = false;
-        }
-        return result;
-    }
 
     public boolean isValidMobileNo() {
         if (!isValidMsisdn(et_clientMobileNo.getEditableText().toString())) {
@@ -620,4 +545,14 @@ public class CreateNewClientFragment extends MifosBaseFragment implements MFDate
         }
         return result;
     }
+
+    public ArrayList<String> filterListObject(List<Options> optionsList) {
+
+        ArrayList<String> optionsNameList = new ArrayList<>();
+        for (Options options : optionsList) {
+            optionsNameList.add(options.getName());
+        }
+        return optionsNameList;
+    }
+
 }

@@ -4,7 +4,7 @@
  */
 
 package com.mifos.objects.survey;
-import java.util.ArrayList;
+
 import java.util.Date;
 import java.util.List;
 
@@ -12,41 +12,40 @@ import java.util.List;
  * Created by Nasim Banu on 28,January,2016.
  */
 public class Scorecard {
-    private Long userId;
-    private Long clientId;
+
+    private int userId;
+    private int clientId;
     private Date createdOn;
     private List<ScorecardValues> scorecardValues;
-    // private Integer value;
 
     public Scorecard() {
         super();
     }
 
-    public Scorecard( final Long userId, final Long clientId,
-                      final Date createdOn, final List<ScorecardValues> scorecardValues) {
+    public Scorecard(final int userId, final int clientId, final Date createdOn,
+                     final List<ScorecardValues> scorecardValues) {
         super();
-
         this.userId = userId;
         this.clientId = clientId;
         this.createdOn = createdOn;
-        this.scorecardValues= scorecardValues;
+        this.scorecardValues = scorecardValues;
 
     }
 
 
-    public Long getUserId() {
+    public int getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(int userId) {
         this.userId = userId;
     }
 
-    public Long getClientId() {
+    public int getClientId() {
         return clientId;
     }
 
-    public void setClientId(Long clientId) {
+    public void setClientId(int clientId) {
         this.clientId = clientId;
     }
 
@@ -62,8 +61,18 @@ public class Scorecard {
         return scorecardValues;
     }
 
-    public void setScorecardValues(List<ScorecardValues> scorecardValues ) {
+    public void setScorecardValues(List<ScorecardValues> scorecardValues) {
         this.scorecardValues = scorecardValues;
+    }
+
+    @Override
+    public String toString() {
+        return "Scorecard{" +
+                "userId=" + userId +
+                ", clientId=" + clientId +
+                ", createdOn=" + createdOn +
+                ", scorecardValues=" + scorecardValues +
+                '}';
     }
 }
 

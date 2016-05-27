@@ -5,6 +5,7 @@
 
 package com.mifos.api;
 
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mifos.api.services.AuthService;
 import com.mifos.api.services.CenterService;
@@ -15,6 +16,7 @@ import com.mifos.api.services.CreateSavingsAccountService;
 import com.mifos.api.services.DataTableService;
 import com.mifos.api.services.DocumentService;
 import com.mifos.api.services.GpsCoordinatesService;
+import com.mifos.api.services.GroupAccountService;
 import com.mifos.api.services.GroupService;
 import com.mifos.api.services.IdentifierService;
 import com.mifos.api.services.LoanService;
@@ -23,6 +25,9 @@ import com.mifos.api.services.SavingsAccountService;
 import com.mifos.api.services.SearchService;
 import com.mifos.api.services.StaffService;
 import com.mifos.api.services.SurveyService;
+import com.mifos.utils.JsonDateSerializer;
+
+import java.util.Date;
 
 import retrofit.Endpoint;
 import retrofit.RestAdapter;
@@ -34,7 +39,7 @@ import retrofit.converter.GsonConverter;
 public class BaseApiManager {
 
 
-    private ApiEndpoint API_ENDPOINT = new ApiEndpoint();
+    private final ApiEndpoint API_ENDPOINT = new ApiEndpoint();
 
     private AuthService authApi;
     private CenterService centerApi;
@@ -53,6 +58,7 @@ public class BaseApiManager {
     private OfficeService officeApi;
     private StaffService staffApi;
     private SurveyService surveyApi;
+    private GroupAccountService groupAccountsServiceApi;
 
     public BaseApiManager() {
         createAuthApi();
@@ -73,6 +79,8 @@ public class BaseApiManager {
         surveyApi = createApi(SurveyService.class, API_ENDPOINT);
         chargeService = createApi(ChargeService.class, API_ENDPOINT);
         createSavingsAccountService = createApi(CreateSavingsAccountService.class, API_ENDPOINT);
+        groupAccountsServiceApi = createApi(GroupAccountService.class, API_ENDPOINT);
+
     }
 
     public void setupEndpoint(String instanceUrl) {
@@ -80,11 +88,15 @@ public class BaseApiManager {
     }
 
     private <T> T createApi(Class<T> clazz, Endpoint endpoint) {
+
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(Date.class, new JsonDateSerializer()).create();
+
         return new RestAdapter.Builder()
                 .setEndpoint(endpoint)
                 .setRequestInterceptor(new ApiRequestInterceptor())
                 .setLogLevel(RestAdapter.LogLevel.FULL)
-                .setConverter(new GsonConverter(new GsonBuilder().create()))
+                .setConverter(new GsonConverter(gson))
                 .build()
                 .create(clazz);
     }
@@ -137,6 +149,10 @@ public class BaseApiManager {
 
     protected GroupService getGroupApi() {
         return groupApi;
+    }
+
+    protected GroupAccountService getGroupAccountsServiceApi() {
+        return groupAccountsServiceApi;
     }
 
     protected DocumentService getDocumentApi() {

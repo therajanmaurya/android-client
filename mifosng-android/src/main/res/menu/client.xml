@@ -13,6 +13,13 @@
         android:enabled="true"
         android:title="@string/more_info"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/pinpoint"
+        android:enabled="true"
+        android:title="@string/pinpoint"
+        app:showAsAction="never" />
+
     <item
         android:id="@+id/charges"
         android:enabled="true"
@@ -22,6 +29,11 @@
         android:id="@+id/add_savings"
         android:enabled="true"
         android:title="@string/savings_account"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/add_loan"
+        android:enabled="true"
+        android:title="@string/add_loan"
         app:showAsAction="never" />
     <item
         android:id="@+id/documents"

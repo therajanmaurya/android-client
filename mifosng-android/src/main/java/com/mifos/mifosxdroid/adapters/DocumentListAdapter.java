@@ -13,6 +13,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.joanzapata.iconify.fonts.MaterialIcons;
+import com.joanzapata.iconify.widget.IconTextView;
 import com.mifos.mifosxdroid.R;
 import com.mifos.objects.noncore.Document;
 
@@ -73,7 +74,8 @@ public class DocumentListAdapter extends BaseAdapter {
         Document document = documents.get(i);
 
         reusableDocumentViewHolder.tv_doc_name.setText(document.getName());
-        reusableDocumentViewHolder.tv_doc_description.setText(document.getDescription()==null?"-":document.getDescription());
+        reusableDocumentViewHolder.tv_doc_description.setText(document.getDescription() == null ?
+                "-" : document.getDescription());
 
         MaterialIcons cloudIcon = MaterialIcons.md_cloud_download;
 //        Iconify.IconValue cloudIcon = Iconify.IconValue.fa_download;
@@ -81,7 +83,7 @@ public class DocumentListAdapter extends BaseAdapter {
         //TODO Implement Local Storage Check to show File Download Info
         //Iconify.IconValue storageIcon = Iconify.IconValue.fa_hdd_o;
 
-        reusableDocumentViewHolder.tv_doc_location_icon.setText(cloudIcon.character());
+        reusableDocumentViewHolder.tv_doc_location_icon.setText("{" + cloudIcon.key() + "}");
 
 //        Iconify.addIcons(reusableDocumentViewHolder.tv_doc_location_icon);
 
@@ -95,9 +97,11 @@ public class DocumentListAdapter extends BaseAdapter {
         @InjectView(R.id.tv_doc_descrption)
         TextView tv_doc_description;
         @InjectView(R.id.tv_doc_location_icon)
-        TextView tv_doc_location_icon;
+        IconTextView tv_doc_location_icon;
 
-        public ReusableDocumentViewHolder(View view) { ButterKnife.inject(this, view); }
+        public ReusableDocumentViewHolder(View view) {
+            ButterKnife.inject(this, view);
+        }
 
     }
 }

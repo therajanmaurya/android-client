@@ -16,7 +16,7 @@ import android.widget.ListView;
 import com.mifos.App;
 import com.mifos.mifosxdroid.R;
 import com.mifos.mifosxdroid.adapters.GroupListAdapter;
-import com.mifos.mifosxdroid.core.MifosBaseFragment;
+import com.mifos.mifosxdroid.core.ProgressableFragment;
 import com.mifos.objects.client.Client;
 import com.mifos.objects.group.CenterWithAssociations;
 import com.mifos.objects.group.GroupWithAssociations;
@@ -31,7 +31,7 @@ import retrofit.RetrofitError;
 import retrofit.client.Response;
 
 
-public class GroupListFragment extends MifosBaseFragment {
+public class GroupListFragment extends ProgressableFragment {
 
     @InjectView(R.id.lv_group_list)
     ListView lv_groupList;
@@ -57,10 +57,11 @@ public class GroupListFragment extends MifosBaseFragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
+            savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_group_list, container, false);
         ButterKnife.inject(this, rootView);
-        setToolbarTitle(getResources().getString(R.string.group));
+        setToolbarTitle(getResources().getString(R.string.title_center_list));
         inflateGroupList();
         return rootView;
     }
@@ -71,7 +72,8 @@ public class GroupListFragment extends MifosBaseFragment {
         try {
             mListener = (OnFragmentInteractionListener) activity;
         } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString() + " must implement OnFragmentInteractionListener");
+            throw new ClassCastException(activity.toString() + " must implement " +
+                    "OnFragmentInteractionListener");
         }
     }
 
@@ -81,47 +83,54 @@ public class GroupListFragment extends MifosBaseFragment {
         mListener = null;
     }
 
-    public interface OnFragmentInteractionListener {
-
-        void loadClientsOfGroup(List<Client> clientList);
-    }
-
     public void inflateGroupList() {
-        showProgress();
+        showProgress(true);
         App.apiManager.getGroupsByCenter(centerId, new Callback<CenterWithAssociations>() {
             @Override
-            public void success(final CenterWithAssociations centerWithAssociations, Response response) {
+            public void success(final CenterWithAssociations centerWithAssociations, Response
+                    response) {
                 if (centerWithAssociations != null) {
 
-                    GroupListAdapter groupListAdapter = new GroupListAdapter(getActivity(), centerWithAssociations.getGroupMembers());
+                    GroupListAdapter groupListAdapter = new GroupListAdapter(getActivity(),
+                            centerWithAssociations.getGroupMembers());
                     lv_groupList.setAdapter(groupListAdapter);
                     lv_groupList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                         @Override
-                        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                        public void onItemClick(AdapterView<?> adapterView, View view, int i,
+                                                long l) {
                             int groupId = centerWithAssociations.getGroupMembers().get(i).getId();
-                            App.apiManager.getGroups(groupId, new Callback<GroupWithAssociations>() {
-                                @Override
-                                public void success(GroupWithAssociations groupWithAssociations, Response response) {
-                                    if (groupWithAssociations != null)
-                                        mListener.loadClientsOfGroup(groupWithAssociations.getClientMembers());
-                                }
+                            App.apiManager.getGroups(groupId,
+                                    new Callback<GroupWithAssociations>() {
+                                        @Override
+                                        public void success(GroupWithAssociations
+                                                                    groupWithAssociations,
+                                                            Response response) {
+                                            if (groupWithAssociations != null)
+                                                mListener.loadClientsOfGroup(groupWithAssociations
+                                                        .getClientMembers());
+                                        }
 
-                                @Override
-                                public void failure(RetrofitError retrofitError) {
+                                        @Override
+                                        public void failure(RetrofitError retrofitError) {
 
-                                }
-                            });
+                                        }
+                                    });
                         }
                     });
-                    hideProgress();
+                    showProgress(false);
                 }
             }
 
             @Override
             public void failure(RetrofitError retrofitError) {
-                hideProgress();
+                showProgress(false);
             }
         });
+    }
+
+    public interface OnFragmentInteractionListener {
+
+        void loadClientsOfGroup(List<Client> clientList);
     }
 }
 

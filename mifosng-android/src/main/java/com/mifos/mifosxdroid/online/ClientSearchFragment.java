@@ -22,6 +22,7 @@ import com.mifos.mifosxdroid.core.MifosBaseFragment;
 import com.mifos.mifosxdroid.core.util.Toaster;
 import com.mifos.objects.SearchedEntity;
 import com.mifos.utils.Constants;
+import com.mifos.utils.EspressoIdlingResource;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +34,8 @@ import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
-public class ClientSearchFragment extends MifosBaseFragment implements AdapterView.OnItemClickListener {
+public class ClientSearchFragment extends MifosBaseFragment implements AdapterView
+        .OnItemClickListener {
 
     private static final String TAG = ClientSearchFragment.class.getSimpleName();
 
@@ -47,9 +49,11 @@ public class ClientSearchFragment extends MifosBaseFragment implements AdapterVi
     private ClientSearchAdapter adapter;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
+            savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_client_search, null);
         ButterKnife.inject(this, rootView);
+        setToolbarTitle(getResources().getString(R.string.dashboard));
         adapter = new ClientSearchAdapter(getContext(), clients, R.layout.list_item_client);
         results.setAdapter(adapter);
         results.setOnItemClickListener(this);
@@ -59,13 +63,16 @@ public class ClientSearchFragment extends MifosBaseFragment implements AdapterVi
     @OnClick(R.id.bt_searchClient)
     public void performSearch() {
         String q = et_searchById.getEditableText().toString().trim();
-        if (!q.isEmpty())
+        if (!q.isEmpty()) {
             findClients(q);
-        else
+        } else {
             Toaster.show(et_searchById, "No Search Query Entered!");
+        }
+
     }
 
     public void findClients(final String name) {
+        EspressoIdlingResource.increment(); // App is busy until further notice.
         showProgress();
 
         App.apiManager.searchClientsByName(name, new Callback<List<SearchedEntity>>() {
@@ -78,11 +85,13 @@ public class ClientSearchFragment extends MifosBaseFragment implements AdapterVi
                 if (result.isEmpty())
                     showAlertDialog("Message", "No results found for entered query");
                 hideProgress();
+                EspressoIdlingResource.decrement(); // App is idle.
             }
 
             @Override
             public void failure(RetrofitError error) {
                 hideProgress();
+                EspressoIdlingResource.decrement(); // App is idle.
             }
         });
     }
