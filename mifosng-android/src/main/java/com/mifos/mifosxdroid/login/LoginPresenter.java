@@ -1,6 +1,5 @@
 package com.mifos.mifosxdroid.login;
 
-import com.mifos.App;
 import com.mifos.api.DataManager;
 import com.mifos.mifosxdroid.base.Presenter;
 import com.mifos.objects.User;
