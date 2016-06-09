@@ -38,7 +38,7 @@ public class LoginPresenter implements Presenter<LoginMvpView> {
     }
 
     public void login(String instanceURL, String username, String password) {
-        App.apiManager.setupEndpoint(instanceURL);
+        mDataManager.mBaseApiManager.setupEndpoint(instanceURL);
         mLoginMvpView.showProgressbar(true);
         mSubscription = mDataManager.login(username, password)
                 .observeOn(AndroidSchedulers.mainThread())
