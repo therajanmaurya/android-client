@@ -14,6 +14,16 @@
     </Match>
 
     <Match>
+        <Class name="com.mifos.App"/>
+        <Bug pattern="MS_MUTABLE_COLLECTION" />
+    </Match>
+
+    <Match>
+        <Class name="com.mifos.mifosxdroid.adapters.CollectionListAdapter" />
+        <Bug pattern="MS_MUTABLE_COLLECTION" />
+    </Match>
+
+    <Match>
         <Bug pattern="DM_DEFAULT_ENCODING" />
     </Match>
 
