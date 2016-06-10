@@ -71,8 +71,10 @@ android {
 
     }
     lintOptions {
-        abortOnError false
+        checkReleaseBuilds false
         disable 'InvalidPackage'
+        abortOnError false
+        ignoreWarnings true
     }
 
     // Exclude duplicated Hamcrest LICENSE.txt from being packaged into the apk.
@@ -89,6 +91,7 @@ android {
             events 'passed', 'skipped', 'failed', 'standardOut', 'standardError'
         }
     }
+
 }
 
 task buildAndEMailAPK(type: Exec, description: 'Builds and Generates a Signed APK and emails it') {
@@ -117,6 +120,13 @@ tasks.withType(com.android.build.gradle.tasks.PackageApplication) {
 allprojects {
     tasks.withType(JavaCompile) {
         options.compilerArgs << "-Xlint:deprecation" << "-Xlint:unchecked"
+    }
+    tasks.withType(JavaCompile) {
+        configure(options) {
+            // TODO
+            compilerArgs << "-Xlint:-unchecked"
+            compilerArgs << "-Xlint:-rawtypes"
+        }
     }
 }
 
@@ -147,7 +157,7 @@ dependencies {
 
     //Butter Knife
     compile "com.jakewharton:butterknife:$rootProject.butterKnifeVersion"
-    apt "com.jakewharton:butterknife-compiler:$rootProject.butterKnifeVersion"
+    apt "com.jakewharton:butterknife-compiler:8.0.1"
 
     //Square dependencies
     compile "com.squareup.retrofit:retrofit:$rootProject.retrofitVersion"
