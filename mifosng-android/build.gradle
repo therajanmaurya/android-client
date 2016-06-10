@@ -117,6 +117,7 @@ tasks.withType(com.android.build.gradle.tasks.PackageApplication) {
 tasks.withType(JavaCompile) {
     configure(options) {
         // TODO
+        compilerArgs << "-Xlint:deprecation"
         compilerArgs << "-Xlint:-unchecked"
         compilerArgs << "-Xlint:-rawtypes"
     }
