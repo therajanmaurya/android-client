@@ -9,10 +9,14 @@ package com.mifos.objects.db;
 import com.google.gson.Gson;
 import com.orm.SugarRecord;
 
-public class MeetingDate extends SugarRecord<MeetingDate> {
+public class MeetingDate extends SugarRecord {
     private int year;
     private int month;
     private int day;
+
+    public MeetingDate() {
+
+    }
 
     public int getYear() {
         return year;

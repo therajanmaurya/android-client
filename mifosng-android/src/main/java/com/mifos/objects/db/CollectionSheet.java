@@ -11,12 +11,16 @@ import com.orm.dsl.Ignore;
 
 import java.util.List;
 
-public class CollectionSheet extends SugarRecord<CollectionSheet> {
+public class CollectionSheet extends SugarRecord {
 
     public int[] dueDate;
 
     @Ignore
     public List<MifosGroup> groups;
+
+    public CollectionSheet() {
+
+    }
 
     public void saveData(long centerId) {
 

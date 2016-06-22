@@ -153,6 +153,8 @@ dependencies {
     compile "com.jakewharton:butterknife:$rootProject.butterKnifeVersion"
     apt "com.jakewharton:butterknife-compiler:$rootProject.butterKnifeVersion"
 
+    //Sugar Orm
+    compile 'com.github.satyan:sugar:1.5'
 
     //Square dependencies
     compile "com.squareup.retrofit2:retrofit:$rootProject.retrofitVersion"

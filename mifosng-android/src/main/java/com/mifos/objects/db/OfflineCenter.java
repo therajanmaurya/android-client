@@ -10,19 +10,22 @@ import com.google.gson.Gson;
 import com.orm.SugarRecord;
 import com.orm.dsl.Ignore;
 
-public class OfflineCenter extends SugarRecord<OfflineCenter> {
+public class OfflineCenter extends SugarRecord {
     private int staffId;
     private String staffName;
     @Ignore
     private MeetingCenter[] meetingFallCenters;
 
 
-    @Ignore
+    public OfflineCenter() {
+
+    }
+
     public MeetingCenter[] getMeetingFallCenters() {
         return meetingFallCenters;
     }
 
-    @Ignore
+
     public void setMeetingFallCenters(MeetingCenter[] meetingFallCenters) {
         this.meetingFallCenters = meetingFallCenters;
     }

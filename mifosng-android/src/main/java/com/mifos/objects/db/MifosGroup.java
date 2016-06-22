@@ -14,7 +14,7 @@ import com.orm.query.Select;
 
 import java.util.List;
 
-public class MifosGroup extends SugarRecord<MifosGroup> {
+public class MifosGroup extends SugarRecord {
     public int staffId;
     public String staffName;
     public int levelId;
@@ -25,12 +25,15 @@ public class MifosGroup extends SugarRecord<MifosGroup> {
     @Ignore
     private List<Client> clients;
 
-    @Ignore
+    public MifosGroup() {
+
+    }
+
     public List<Client> getClients() {
         return clients;
     }
 
-    @Ignore
+
     public void setClients(List<Client> clients) {
         this.clients = clients;
     }

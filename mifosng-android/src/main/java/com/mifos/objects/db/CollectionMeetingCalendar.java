@@ -15,7 +15,7 @@ import com.orm.query.Select;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CollectionMeetingCalendar extends SugarRecord<CollectionMeetingCalendar> {
+public class CollectionMeetingCalendar extends SugarRecord {
     private int calendarInstanceId;
     private long calendarId;
     private int entityId;
@@ -29,11 +29,16 @@ public class CollectionMeetingCalendar extends SugarRecord<CollectionMeetingCale
     @Ignore
     private List<Integer> startDate = new ArrayList<Integer>();
 
-    public boolean isNew() {
+    public CollectionMeetingCalendar() {
+
+    }
+
+    //TODO check again in latest API
+    /*public boolean isNew() {
         long count = Select.from(CollectionMeetingCalendar.class).where(Condition.prop("id").eq
                 (id)).count();
         return count == 0;
-    }
+    }*/
 
     public long getCalendarId() {
         return calendarId;
@@ -64,12 +69,12 @@ public class CollectionMeetingCalendar extends SugarRecord<CollectionMeetingCale
         this.calendarInstanceId = calendarInstanceId;
     }
 
-    @Ignore
+
     public List<Integer> getStartDate() {
         return startDate;
     }
 
-    @Ignore
+
     public void setStartDate(List<Integer> startDate) {
         this.startDate = startDate;
     }

@@ -8,11 +8,15 @@ package com.mifos.objects.db;
 import com.google.gson.Gson;
 import com.orm.SugarRecord;
 
-public class AttendanceType extends SugarRecord<AttendanceType> {
+public class AttendanceType extends SugarRecord {
     private int attendanceTypeId;
     private String code;
     private String value;
     private Client client;
+
+    public AttendanceType() {
+
+    }
 
     public Client getClient() {
         return client;

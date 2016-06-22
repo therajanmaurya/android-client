@@ -7,10 +7,14 @@ package com.mifos.objects.db;
 
 import com.orm.SugarRecord;
 
-public class Account extends SugarRecord<Account> {
+public class Account extends SugarRecord {
     private String accountId;
     private int accountStatusId;
     private int loanId;
+
+    public Account() {
+
+    }
 
     public int getLoanId() {
         return loanId;

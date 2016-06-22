@@ -12,7 +12,7 @@ import com.orm.dsl.Ignore;
 import java.util.List;
 
 
-public class MeetingCenter extends SugarRecord<MeetingCenter> {
+public class MeetingCenter extends SugarRecord {
 
     private String name;
     private String externalId;
@@ -27,6 +27,10 @@ public class MeetingCenter extends SugarRecord<MeetingCenter> {
     private long centerId;
     @Ignore
     private List<Integer> activationDate;
+
+    public MeetingCenter() {
+
+    }
 
     public long getCenterId() {
         return centerId;
@@ -44,12 +48,12 @@ public class MeetingCenter extends SugarRecord<MeetingCenter> {
         this.name = name;
     }
 
-    @Ignore
+
     public List<Integer> getActivationDate() {
         return activationDate;
     }
 
-    @Ignore
+
     public void setActivationDate(List<Integer> activationDate) {
         this.activationDate = activationDate;
     }

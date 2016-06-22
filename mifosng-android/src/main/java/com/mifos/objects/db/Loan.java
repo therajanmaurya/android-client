@@ -8,7 +8,7 @@ package com.mifos.objects.db;
 import com.google.gson.Gson;
 import com.orm.SugarRecord;
 
-public class Loan extends SugarRecord<Loan> {
+public class Loan extends SugarRecord {
     public double disbursementAmount;
     public double interestDue;
     public double interestPaid;
@@ -24,6 +24,10 @@ public class Loan extends SugarRecord<Loan> {
     private Currency currency;
     private Client client;
     private String isPaymentChanged;
+
+    public Loan() {
+
+    }
 
     public String getIsPaymentChanged() {
         return isPaymentChanged;

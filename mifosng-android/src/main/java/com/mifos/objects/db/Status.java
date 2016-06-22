@@ -9,10 +9,16 @@ package com.mifos.objects.db;
 import com.google.gson.Gson;
 import com.orm.SugarRecord;
 
-public class Status extends SugarRecord<Status> {
+public class Status extends SugarRecord {
     private String code;
     private String value;
 
+
+    public Status() {
+
+    }
+
+    //TODO Fix in future
     /* public boolean isNew() {
          long count = Select.from(Status.class).where(Condition.prop("id").eq(id)).count();
          return count == 0;

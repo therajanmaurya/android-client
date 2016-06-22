@@ -7,7 +7,7 @@ package com.mifos.objects.db;
 
 import com.orm.SugarRecord;
 
-public class RepaymentTransaction extends SugarRecord<RepaymentTransaction> {
+public class RepaymentTransaction extends SugarRecord {
 
     private Loan loan;
     private double transactionAmount;

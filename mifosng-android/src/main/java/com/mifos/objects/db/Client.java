@@ -14,11 +14,15 @@ import com.orm.query.Select;
 import java.util.List;
 
 
-public class Client extends SugarRecord<Client> {
+public class Client extends SugarRecord {
     private int clientId;
     private String clientName;
     private AttendanceType attendanceType;
     private MifosGroup mifosGroup;
+
+    public Client() {
+
+    }
 
     @Ignore
     private List<Loan> loans;
