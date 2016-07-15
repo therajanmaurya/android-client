@@ -36,7 +36,7 @@ import com.mifos.objects.noncore.DataTable;
 import com.mifos.objects.noncore.Document;
 import com.mifos.objects.noncore.Identifier;
 import com.mifos.objects.organisation.Office;
-import com.mifos.objects.organisation.ProductLoans;
+import com.mifos.objects.organisation.LoanProducts;
 import com.mifos.objects.organisation.ProductSavings;
 import com.mifos.objects.organisation.Staff;
 import com.mifos.objects.survey.Scorecard;
@@ -305,7 +305,7 @@ public class DataManager {
         return mBaseApiManager.getLoanApi().getLoanWithTransactions(loan);
     }
 
-    public Observable<List<ProductLoans>> getAllLoans() {
+    public Observable<List<LoanProducts>> getAllLoans() {
         return mBaseApiManager.getLoanApi().getAllLoans();
     }
 
@@ -317,9 +317,6 @@ public class DataManager {
         return mBaseApiManager.getLoanApi().createGroupLoansAccount(loansPayload);
     }
 
-    public Observable<ResponseBody> getLoansAccountTemplate(int clientId, int productId) {
-        return mBaseApiManager.getLoanApi().getLoansAccountTemplate(clientId, productId);
-    }
 
     public Observable<LoanWithAssociations> getLoanRepaySchedule(int loanId) {
         return mBaseApiManager.getLoanApi().getLoanRepaymentSchedule(loanId);
@@ -355,9 +352,6 @@ public class DataManager {
         return mBaseApiManager.getLoanApi().submitPayment(loanId, request);
     }
 
-    public Observable<Loans> createLoansAccount(LoansPayload loansPayload) {
-        return mBaseApiManager.getLoanApi().createLoansAccount(loansPayload);
-    }
 
 
     /**
