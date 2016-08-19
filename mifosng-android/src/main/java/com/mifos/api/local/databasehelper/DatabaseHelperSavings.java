@@ -35,6 +35,13 @@ public class DatabaseHelperSavings {
     }
 
 
+    /**
+     * This Saving the SavingsAccountSummary template into Database
+     * SavingsAccountWithAssociations_Table with the Primary key SavingsAccountId.
+     *
+     * @param savingsAccountWithAssociations SavingAccountSummary Template.
+     * @return SavingsAccountWithAssociations.
+     */
     public Observable<SavingsAccountWithAssociations> saveSavingsAccount(
             final SavingsAccountWithAssociations savingsAccountWithAssociations) {
         return Observable.defer(new Func0<Observable<SavingsAccountWithAssociations>>() {
@@ -69,7 +76,15 @@ public class DatabaseHelperSavings {
         });
     }
 
-
+    /**
+     * This Method Read the SavingsAccountSummary Template from the
+     * SavingsAccountWithAssociations_Table and give the response SavingsAccountWithAssociations.
+     * If the Query returns the null its means SavingsAccountSummary template doest exist into the
+     * Database with savingAccountId.
+     *
+     * @param savingsAccountId Savings Account Id
+     * @return SavingsAccountWithAssociations SavingsAccountSummary Template.
+     */
     public Observable<SavingsAccountWithAssociations> readSavingsAccount(
             final int savingsAccountId) {
         return Observable.defer(new Func0<Observable<SavingsAccountWithAssociations>>() {
@@ -107,6 +122,13 @@ public class DatabaseHelperSavings {
         });
     }
 
+
+    /**
+     * This Method is Saving the SavingsAccountTransactionTemplate into Database.
+     *
+     * @param savingsAccountTransactionTemplate SavingsAccountTransactionTemplate
+     * @return SavingsAccountTransactionTemplate
+     */
     public Observable<SavingsAccountTransactionTemplate> saveSavingsAccountTransactionTemplate(
             final SavingsAccountTransactionTemplate savingsAccountTransactionTemplate) {
         return Observable.defer(new Func0<Observable<SavingsAccountTransactionTemplate>>() {
@@ -128,6 +150,16 @@ public class DatabaseHelperSavings {
         });
     }
 
+
+    /**
+     * This method is making Query to the Database SavingsAccountTransactionTemplate_Table and
+     * with primary key SavingsAccount Id and returns the SavingsAccountTransactionTemplate
+     * with Primary Key. If SavingsAccountTransactionTemplate does not exist it returns null.
+     * otherwise returns SavingsAccountTransactionTemplate.
+     *
+     * @param savingsAccountId SavingAccount id
+     * @return SavingsAccountTransactionTemplate
+     */
     public Observable<SavingsAccountTransactionTemplate> readSavingsAccountTransactionTemplate(
             final int savingsAccountId) {
         return Observable.defer(new Func0<Observable<SavingsAccountTransactionTemplate>>() {
@@ -154,6 +186,16 @@ public class DatabaseHelperSavings {
         });
     }
 
+
+    /**
+     * This Method saving the SavingAccountTransaction into Database
+     * SavingsAccountTransactionRequest_Table , If user have no internet
+     * connection or if user making transaction in offline mode.
+     *
+     * @param savingsAccountTransactionRequest SavingsAccountTransactionRequest Body
+     * @param savingsAccountId  SavingAccount Id
+     * @return SavingsAccountTransactionResponse
+     */
     public Observable<SavingsAccountTransactionResponse> saveSavingsAccountTransaction(
             final SavingsAccountTransactionRequest savingsAccountTransactionRequest,
             final int savingsAccountId) {
@@ -169,7 +211,15 @@ public class DatabaseHelperSavings {
         });
     }
 
-    public Observable<SavingsAccountTransactionRequest> getDatabaseSavingsAccountTransaction(
+    /**
+     * This Method, retrieving SavingsAccountTransactionRequest with the Saving Id from Database
+     * SavingsAccountTransactionRequest_Table. If no entry found with the SavingsAccount Id. It
+     * returns null.
+     *
+     * @param savingsAccountId SavingAccount Id
+     * @return SavingsAccountTransactionRequest
+     */
+    public Observable<SavingsAccountTransactionRequest> getSavingsAccountTransaction(
             final int savingsAccountId) {
         return Observable.defer(new Func0<Observable<SavingsAccountTransactionRequest>>() {
             @Override
@@ -183,6 +233,27 @@ public class DatabaseHelperSavings {
                                 .querySingle();
 
                 return Observable.just(savingsAccountTransactionRequest);
+            }
+        });
+    }
+
+    /**
+     * This Method Load all Transactions from the SavingsAccountTransactionRequest_Table
+     * and give the List<SavingsAccountTransactionRequest> response.
+     *
+     * @return List<SavingsAccountTransactionRequest>
+     */
+    public Observable<List<SavingsAccountTransactionRequest>> getAllSavingsAccountTransaction() {
+        return Observable.defer(new Func0<Observable<List<SavingsAccountTransactionRequest>>>() {
+            @Override
+            public Observable<List<SavingsAccountTransactionRequest>> call() {
+
+                List<SavingsAccountTransactionRequest> savingsAccountTransactionRequests =
+                        SQLite.select()
+                                .from(SavingsAccountTransactionRequest.class)
+                                .queryList();
+
+                return Observable.just(savingsAccountTransactionRequests);
             }
         });
     }

@@ -12,6 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.mifos.mifosxdroid.R;
+import com.mifos.mifosxdroid.adapters.SyncSavingsAccountTransactionAdapter;
 import com.mifos.mifosxdroid.core.MifosBaseActivity;
 import com.mifos.mifosxdroid.core.MifosBaseFragment;
 
@@ -47,6 +48,9 @@ public class SyncSavingsAccountTransactionFragment extends MifosBaseFragment imp
     @Inject
     SyncSavingsAccountTransactionPresenter mSyncSavingsAccountTransactionPresenter;
 
+    @Inject
+    SyncSavingsAccountTransactionAdapter mSyncSavingsAccountTransactionAdapter;
+
     private View rootView;
 
 
@@ -76,7 +80,7 @@ public class SyncSavingsAccountTransactionFragment extends MifosBaseFragment imp
         mLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         rv_loan_repayment.setLayoutManager(mLayoutManager);
         rv_loan_repayment.setHasFixedSize(true);
-        //rv_loan_repayment.setAdapter(mSyncLoanRepaymentAdapter);
+        rv_loan_repayment.setAdapter(mSyncSavingsAccountTransactionAdapter);
 
         return rootView;
     }

@@ -10,6 +10,7 @@ import com.mifos.objects.templates.savings.SavingsAccountTransactionTemplate;
 import com.mifos.utils.PrefManager;
 
 import java.util.HashMap;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -167,9 +168,20 @@ public class DataManagerSavings {
      * @param savingAccountId SavingsAccount Id
      * @return SavingsAccountTransactionRequest
      */
-    public Observable<SavingsAccountTransactionRequest> getDatabaseSavingsAccountTransaction(
+    public Observable<SavingsAccountTransactionRequest> getSavingsAccountTransaction(
             int savingAccountId) {
-        return mDatabaseHelperSavings.getDatabaseSavingsAccountTransaction(savingAccountId);
+        return mDatabaseHelperSavings.getSavingsAccountTransaction(savingAccountId);
     }
 
+
+    /**
+     * This Method sent the request to DatabaseHelperSavings and DatabaseHelperSavings load the
+     * All SavingsAccountTransactions from the SavingsAccountTransactionRequest_Table.
+     * and returns the List<SavingsAccountTransactionRequest>
+     *
+     * @return List<SavingsAccountTransactionRequest></>
+     */
+    public Observable<List<SavingsAccountTransactionRequest>> getAllSavingsAccountTransactions() {
+        return mDatabaseHelperSavings.getAllSavingsAccountTransaction();
+    }
 }
