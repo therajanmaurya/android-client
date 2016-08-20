@@ -26,7 +26,7 @@ import rx.subscriptions.CompositeSubscription;
  * Created by Rajan Maurya on 19/08/16.
  */
 public class SyncSavingsAccountTransactionPresenter extends
-        BasePresenter<SyncSavingsAccountTransactionMvpView>{
+        BasePresenter<SyncSavingsAccountTransactionMvpView> {
 
     public final String LOG_TAG = getClass().getSimpleName();
 
@@ -69,6 +69,13 @@ public class SyncSavingsAccountTransactionPresenter extends
     }
 
 
+    /**
+     * This Method Check, SavingsAccountTransactionRequest Error Message is null or not, If
+     * error message will not null. It means that SavingsAccountTransactionRequest already tried to
+     * synced but there is some error to sync that Transaction.
+     * and If error message  is null. It means SavingsAccountTransactionRequest never synced before
+     * start sync that SavingsAccountTransactionRequest.
+     */
     public void checkErrorAndSync() {
         for (int i = 0; i < mSavingsAccountTransactionRequests.size(); ++i) {
             if (mSavingsAccountTransactionRequests.get(i).getErrorMessage() == null) {
@@ -92,11 +99,22 @@ public class SyncSavingsAccountTransactionPresenter extends
     }
 
 
+    /**
+     * This Method delete the SavingsAccountTransactionRequest from Database and load again
+     * List<SavingsAccountTransactionRequest> and Update the UI.
+     */
     public void showTransactionSyncSuccessfully() {
         deleteAndUpdateSavingsAccountTransaction(
                 mSavingsAccountTransactionRequests.get(mTransactionIndex).getSavingAccountId());
     }
 
+    /**
+     * This Method will be called whenever Transaction sync failed. This Method set the Error
+     * message to the SavingsAccountTransactionRequest and update
+     * SavingsAccountTransactionRequest into the Database
+     *
+     * @param errorMessage Server Error Message
+     */
     public void showTransactionSyncFailed(ErrorSyncServerMessage errorMessage) {
         SavingsAccountTransactionRequest transaction = mSavingsAccountTransactionRequests.get
                 (mTransactionIndex);
@@ -104,6 +122,12 @@ public class SyncSavingsAccountTransactionPresenter extends
         updateSavingsAccountTransaction(transaction);
     }
 
+    /**
+     * This Method will be called when Transaction will be sync successfully and deleted from
+     * Database the This Method Start Syncing next Transaction.
+     *
+     * @param transaction SavingsAccountTransactionRequest
+     */
     public void showTransactionUpdatedSuccessfully(SavingsAccountTransactionRequest transaction) {
         mSavingsAccountTransactionRequests.set(mTransactionIndex, transaction);
         getMvpView().showSavingsAccountTransactions(mSavingsAccountTransactionRequests);
@@ -114,9 +138,15 @@ public class SyncSavingsAccountTransactionPresenter extends
         }
     }
 
-    public void showTransactionDeletedAndUpdated(
-            List<SavingsAccountTransactionRequest> transactions) {
-
+    /**
+     * This Method Update the UI. This Method will be called when sync transaction will be
+     * deleted from Database and  load again Transaction from Database
+     * List<SavingsAccountTransactionRequest>.
+     *
+     * @param transactions List<SavingsAccountTransactionRequest>
+     */
+    public void showTransactionDeletedAndUpdated(List<SavingsAccountTransactionRequest>
+                                                         transactions) {
         mTransactionIndex = 0;
         mSavingsAccountTransactionRequests = transactions;
         getMvpView().showSavingsAccountTransactions(transactions);
@@ -129,6 +159,10 @@ public class SyncSavingsAccountTransactionPresenter extends
     }
 
 
+    /**
+     * This Method Load the List<SavingsAccountTransactionRequest> from
+     * SavingsAccountTransactionRequest_Table and Update the UI
+     */
     public void loadDatabaseSavingsAccountTransactions() {
         checkViewAttached();
         getMvpView().showProgressbar(true);
@@ -163,6 +197,10 @@ public class SyncSavingsAccountTransactionPresenter extends
     }
 
 
+    /**
+     * THis Method Load the Payment Type Options from Database PaymentTypeOption_Table
+     * and update the UI.
+     */
     public void loadPaymentTypeOption() {
         checkViewAttached();
         getMvpView().showProgressbar(true);
@@ -190,6 +228,21 @@ public class SyncSavingsAccountTransactionPresenter extends
     }
 
 
+    /**
+     * This Method is for Sync Offline Saved SavingsAccountTransaction to the Server.
+     * This method will be called when user will be in online mode and user's Internet connection
+     * will be working well. If the Transaction will failed to sync then
+     * updateSavingsAccountTransaction(SavingsAccountTransactionRequest request) save the developer
+     * error message to Database with the failed Transaction. otherwise
+     * deleteAndUpdateSavingsAccountTransaction(int savingsAccountId) delete the sync
+     * Transaction from Database and load again Transaction List from
+     * SavingsAccountTransactionRequest_Table and then sync next.
+     *
+     * @param type            SavingsAccount type
+     * @param accountId       SavingsAccount Id
+     * @param transactionType Transaction type
+     * @param request         SavingsAccountTransactionRequest
+     */
     public void processTransaction(String type, int accountId, String transactionType,
                                    SavingsAccountTransactionRequest request) {
         checkViewAttached();
@@ -230,6 +283,13 @@ public class SyncSavingsAccountTransactionPresenter extends
     }
 
 
+    /**
+     * This Method delete the SavingsAccountTransactionRequest from the Database and load again
+     * List<SavingsAccountTransactionRequest> from the SavingsAccountTransactionRequest_Table.
+     * and returns the List<SavingsAccountTransactionRequest>.
+     *
+     * @param savingsAccountId SavingsAccountTransactionRequest's SavingsAccount Id
+     */
     public void deleteAndUpdateSavingsAccountTransaction(int savingsAccountId) {
         checkViewAttached();
         getMvpView().showProgressbar(true);
@@ -258,6 +318,14 @@ public class SyncSavingsAccountTransactionPresenter extends
         );
     }
 
+
+    /**
+     * This Method Update the SavingsAccountTransactionRequest in the Database. This will be called
+     * whenever any transaction will be failed to sync then the sync developer error message will
+     * be added to SavingsAccountTransactionRequest to update in Database.
+     *
+     * @param request SavingsAccountTransactionRequest
+     */
     public void updateSavingsAccountTransaction(SavingsAccountTransactionRequest request) {
         checkViewAttached();
         getMvpView().showProgressbar(true);
