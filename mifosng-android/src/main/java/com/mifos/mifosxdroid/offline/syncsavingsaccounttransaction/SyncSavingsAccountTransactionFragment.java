@@ -16,6 +16,7 @@ import com.mifos.mifosxdroid.adapters.SyncSavingsAccountTransactionAdapter;
 import com.mifos.mifosxdroid.core.MifosBaseActivity;
 import com.mifos.mifosxdroid.core.MifosBaseFragment;
 import com.mifos.mifosxdroid.core.util.Toaster;
+import com.mifos.objects.PaymentTypeOption;
 import com.mifos.objects.accounts.savings.SavingsAccountTransactionRequest;
 
 import java.util.List;
@@ -88,6 +89,7 @@ public class SyncSavingsAccountTransactionFragment extends MifosBaseFragment imp
         rv_loan_repayment.setAdapter(mSyncSavingsAccountTransactionAdapter);
         swipeRefreshLayout.setColorSchemeColors(getActivity()
                 .getResources().getIntArray(R.array.swipeRefreshColors));
+        swipeRefreshLayout.setOnRefreshListener(this);
 
         //Loading LoanRepayment Transactions  and PaymentTypeOptions From Database
         mSyncSavingsAccountTransactionPresenter.loadDatabaseSavingsAccountTransactions();
@@ -131,6 +133,11 @@ public class SyncSavingsAccountTransactionFragment extends MifosBaseFragment imp
         mNoPayloadText.setText(getActivity()
                 .getResources().getString(R.string.no_repayment_to_sync));
         mNoPayloadIcon.setImageResource(R.drawable.ic_assignment_turned_in_black_24dp);
+    }
+
+    @Override
+    public void showPaymentTypeOptions(List<PaymentTypeOption> paymentTypeOptions) {
+        mSyncSavingsAccountTransactionAdapter.setPaymentTypeOptions(paymentTypeOptions);
     }
 
     @Override

@@ -7,7 +7,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.mifos.mifosxdroid.R;
+import com.mifos.objects.PaymentTypeOption;
 import com.mifos.objects.accounts.savings.SavingsAccountTransactionRequest;
+import com.mifos.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,10 +26,12 @@ public class SyncSavingsAccountTransactionAdapter extends
         RecyclerView.Adapter<SyncSavingsAccountTransactionAdapter.ViewHolder> {
 
     private List<SavingsAccountTransactionRequest> mSavingsAccountTransactionRequests;
+    private List<PaymentTypeOption> mPaymentTypeOptions;
 
     @Inject
     public SyncSavingsAccountTransactionAdapter() {
         mSavingsAccountTransactionRequests = new ArrayList<>();
+        mPaymentTypeOptions = new ArrayList<>();
     }
 
     @Override
@@ -44,12 +48,22 @@ public class SyncSavingsAccountTransactionAdapter extends
         notifyDataSetChanged();
     }
 
+    public void setPaymentTypeOptions(List<PaymentTypeOption> paymentTypeOptions) {
+        mPaymentTypeOptions = paymentTypeOptions;
+        notifyDataSetChanged();
+    }
+
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         SavingsAccountTransactionRequest transaction =
                 mSavingsAccountTransactionRequests.get(position);
 
+        String paymentTypeName =
+                Utils.getPaymentTypeName(Integer.parseInt(transaction.getPaymentTypeId()),
+                        mPaymentTypeOptions);
+
         holder.tv_savings_account_id.setText(String.valueOf(transaction.getSavingAccountId()));
+        holder.tv_payment_type.setText(paymentTypeName);
         holder.tv_transaction_type.setText(transaction.getTransactionType());
         holder.tv_transaction_amount.setText(transaction.getTransactionAmount());
         holder.tv_transaction_date.setText(transaction.getTransactionDate());

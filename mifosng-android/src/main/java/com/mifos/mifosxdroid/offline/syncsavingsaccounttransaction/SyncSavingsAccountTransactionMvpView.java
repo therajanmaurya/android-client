@@ -1,6 +1,7 @@
 package com.mifos.mifosxdroid.offline.syncsavingsaccounttransaction;
 
 import com.mifos.mifosxdroid.base.MvpView;
+import com.mifos.objects.PaymentTypeOption;
 import com.mifos.objects.accounts.savings.SavingsAccountTransactionRequest;
 
 import java.util.List;
@@ -13,6 +14,8 @@ public interface SyncSavingsAccountTransactionMvpView extends MvpView {
     void showSavingsAccountTransactions(List<SavingsAccountTransactionRequest> transactions);
 
     void showEmptySavingsAccountTransactions();
+
+    void showPaymentTypeOptions(List<PaymentTypeOption> paymentTypeOptions);
 
     void showError();
 

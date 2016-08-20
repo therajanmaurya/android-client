@@ -94,11 +94,13 @@ public class SyncSavingsAccountTransactionPresenter extends
                     @Override
                     public void onError(Throwable e) {
                         getMvpView().showProgressbar(false);
+                        getMvpView().showError();
                     }
 
                     @Override
                     public void onNext(List<PaymentTypeOption> paymentTypeOptions) {
                         getMvpView().showProgressbar(false);
+                        getMvpView().showPaymentTypeOptions(paymentTypeOptions);
                     }
                 }));
     }
