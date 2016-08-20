@@ -79,6 +79,18 @@ public class SavingsAccountTransactionRequest extends MifosBaseModel implements 
     @Column
     String bankNumber;
 
+    @SerializedName("errorMessage")
+    @Column
+    transient String errorMessage;
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
+    }
+
     public String getSavingsAccountType() {
         return savingsAccountType;
     }

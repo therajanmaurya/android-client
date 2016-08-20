@@ -2,11 +2,13 @@ package com.mifos.mifosxdroid.offline.syncsavingsaccounttransaction;
 
 import com.mifos.api.datamanager.DataManagerLoan;
 import com.mifos.api.datamanager.DataManagerSavings;
+import com.mifos.mifosxdroid.R;
 import com.mifos.mifosxdroid.base.BasePresenter;
 import com.mifos.objects.PaymentTypeOption;
 import com.mifos.objects.accounts.savings.SavingsAccountTransactionRequest;
 import com.mifos.objects.accounts.savings.SavingsAccountTransactionResponse;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -27,12 +29,15 @@ public class SyncSavingsAccountTransactionPresenter extends
     public final DataManagerLoan mDataManagerLoan;
     private CompositeSubscription mSubscriptions;
 
+    private List<SavingsAccountTransactionRequest> mSavingsAccountTransactionRequests;
+
     @Inject
     public SyncSavingsAccountTransactionPresenter(DataManagerSavings dataManagerSavings,
                                                   DataManagerLoan dataManagerLoan) {
         mDataManagerSavings = dataManagerSavings;
         mDataManagerLoan = dataManagerLoan;
         mSubscriptions = new CompositeSubscription();
+        mSavingsAccountTransactionRequests = new ArrayList<>();
     }
 
     @Override
@@ -62,7 +67,7 @@ public class SyncSavingsAccountTransactionPresenter extends
                     @Override
                     public void onError(Throwable e) {
                         getMvpView().showProgressbar(false);
-                        getMvpView().showError();
+                        getMvpView().showError(R.string.failed_to_load_savingaccounttransaction);
                     }
 
                     @Override
@@ -70,6 +75,7 @@ public class SyncSavingsAccountTransactionPresenter extends
                         getMvpView().showProgressbar(false);
                         if (!transactionRequests.isEmpty()) {
                             getMvpView().showSavingsAccountTransactions(transactionRequests);
+                            mSavingsAccountTransactionRequests = transactionRequests;
                         } else {
                             getMvpView().showEmptySavingsAccountTransactions();
                         }
@@ -94,7 +100,7 @@ public class SyncSavingsAccountTransactionPresenter extends
                     @Override
                     public void onError(Throwable e) {
                         getMvpView().showProgressbar(false);
-                        getMvpView().showError();
+                        getMvpView().showError(R.string.failed_to_load_paymentoptions);
                     }
 
                     @Override

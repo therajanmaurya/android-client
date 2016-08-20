@@ -17,6 +17,8 @@ public interface SyncSavingsAccountTransactionMvpView extends MvpView {
 
     void showPaymentTypeOptions(List<PaymentTypeOption> paymentTypeOptions);
 
-    void showError();
+    void showOfflineModeDialog();
+
+    void showError(int message);
 
 }

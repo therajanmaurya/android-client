@@ -1,10 +1,14 @@
 package com.mifos.mifosxdroid.offline.syncsavingsaccounttransaction;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -13,11 +17,14 @@ import android.widget.TextView;
 
 import com.mifos.mifosxdroid.R;
 import com.mifos.mifosxdroid.adapters.SyncSavingsAccountTransactionAdapter;
+import com.mifos.mifosxdroid.core.MaterialDialog;
 import com.mifos.mifosxdroid.core.MifosBaseActivity;
 import com.mifos.mifosxdroid.core.MifosBaseFragment;
 import com.mifos.mifosxdroid.core.util.Toaster;
 import com.mifos.objects.PaymentTypeOption;
 import com.mifos.objects.accounts.savings.SavingsAccountTransactionRequest;
+import com.mifos.utils.Constants;
+import com.mifos.utils.PrefManager;
 
 import java.util.List;
 
@@ -31,7 +38,8 @@ import butterknife.OnClick;
  * Created by Rajan Maurya on 19/08/16.
  */
 public class SyncSavingsAccountTransactionFragment extends MifosBaseFragment implements
-        SyncSavingsAccountTransactionMvpView, SwipeRefreshLayout.OnRefreshListener {
+        SyncSavingsAccountTransactionMvpView, SwipeRefreshLayout.OnRefreshListener,
+        DialogInterface.OnClickListener {
 
 
     public final String LOG_TAG = getClass().getSimpleName();
@@ -120,10 +128,38 @@ public class SyncSavingsAccountTransactionFragment extends MifosBaseFragment imp
     public void reloadOnError() {
         ll_error.setVisibility(View.GONE);
         mSyncSavingsAccountTransactionPresenter.loadDatabaseSavingsAccountTransactions();
+        mSyncSavingsAccountTransactionPresenter.loadPaymentTypeOption();
     }
 
     @Override
-    public void showSavingsAccountTransactions(List<SavingsAccountTransactionRequest> transactions) {
+    public void showOfflineModeDialog() {
+        new MaterialDialog.Builder().init(getActivity())
+                .setTitle(R.string.offline_mode)
+                .setMessage(R.string.dialog_message_offline_sync_alert)
+                .setPositiveButton(R.string.dialog_action_go_online, this)
+                .setNegativeButton(R.string.dialog_action_cancel, this)
+                .createMaterialDialog()
+                .show();
+    }
+
+    @Override
+    public void onClick(DialogInterface dialog, int which) {
+        switch (which) {
+            case DialogInterface.BUTTON_NEGATIVE:
+                dialog.dismiss();
+                break;
+            case DialogInterface.BUTTON_POSITIVE:
+                PrefManager.setUserStatus(Constants.USER_ONLINE);
+
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public void showSavingsAccountTransactions(
+            List<SavingsAccountTransactionRequest> transactions) {
         mSyncSavingsAccountTransactionAdapter.setSavingsAccountTransactions(transactions);
     }
 
@@ -141,8 +177,8 @@ public class SyncSavingsAccountTransactionFragment extends MifosBaseFragment imp
     }
 
     @Override
-    public void showError() {
-        Toaster.show(rootView, "");
+    public void showError(int message) {
+        Toaster.show(rootView, message);
     }
 
     @Override
@@ -154,6 +190,30 @@ public class SyncSavingsAccountTransactionFragment extends MifosBaseFragment imp
         } else {
             hideMifosProgressBar();
         }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_sync, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_sync) {
+            switch (PrefManager.getUserStatus()) {
+                case 0:
+
+                    break;
+                case 1:
+                    showOfflineModeDialog();
+                    break;
+                default:
+                    break;
+            }
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
