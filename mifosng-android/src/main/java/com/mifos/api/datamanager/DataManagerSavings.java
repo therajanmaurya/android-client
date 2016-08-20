@@ -140,11 +140,11 @@ public class DataManagerSavings {
      * @return SavingsAccountTransactionResponse
      */
     public Observable<SavingsAccountTransactionResponse> processTransaction(
-            String type, int savingsAccountId, String transactionType,
+            String savingsAccountType, int savingsAccountId, String transactionType,
             SavingsAccountTransactionRequest request) {
         switch (PrefManager.getUserStatus()) {
             case 0:
-                return mBaseApiManager.getSavingsApi().processTransaction(type,
+                return mBaseApiManager.getSavingsApi().processTransaction(savingsAccountType,
                         savingsAccountId, transactionType, request);
 
             case 1:
@@ -152,7 +152,8 @@ public class DataManagerSavings {
                  * Return SavingsAccountTransactionResponse from DatabaseHelperSavings.
                  */
                 return mDatabaseHelperSavings
-                        .saveSavingsAccountTransaction(request, savingsAccountId);
+                        .saveSavingsAccountTransaction(savingsAccountType, savingsAccountId,
+                                transactionType, request);
 
             default:
                 return Observable.just(new SavingsAccountTransactionResponse());

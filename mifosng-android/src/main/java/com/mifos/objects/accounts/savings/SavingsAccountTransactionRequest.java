@@ -27,6 +27,14 @@ public class SavingsAccountTransactionRequest extends MifosBaseModel implements 
     @PrimaryKey
     transient Integer savingAccountId;
 
+    @SerializedName("savingsAccountType")
+    @Column
+    transient String savingsAccountType;
+
+    @SerializedName("transactionType")
+    @Column
+    transient String transactionType;
+
     @SerializedName("dateFormat")
     @Column
     String dateFormat;
@@ -70,6 +78,22 @@ public class SavingsAccountTransactionRequest extends MifosBaseModel implements 
     @SerializedName("bankNumber")
     @Column
     String bankNumber;
+
+    public String getSavingsAccountType() {
+        return savingsAccountType;
+    }
+
+    public void setSavingsAccountType(String savingsAccountType) {
+        this.savingsAccountType = savingsAccountType;
+    }
+
+    public String getTransactionType() {
+        return transactionType;
+    }
+
+    public void setTransactionType(String transactionType) {
+        this.transactionType = transactionType;
+    }
 
     public Integer getSavingAccountId() {
         return savingAccountId;

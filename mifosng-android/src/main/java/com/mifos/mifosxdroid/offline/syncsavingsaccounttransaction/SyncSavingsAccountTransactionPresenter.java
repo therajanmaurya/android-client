@@ -100,6 +100,7 @@ public class SyncSavingsAccountTransactionPresenter extends
                 }));
     }
 
+
     public void processTransaction(String type, int accountId, String transactionType,
                                    SavingsAccountTransactionRequest request) {
         checkViewAttached();
@@ -128,10 +129,55 @@ public class SyncSavingsAccountTransactionPresenter extends
     }
 
 
-    public void deleteAndUpdateSavingsAccountTransaction() {
+    public void deleteAndUpdateSavingsAccountTransaction(int savingsAccountId) {
         checkViewAttached();
         getMvpView().showProgressbar(true);
+        mSubscriptions.add(mDataManagerSavings.deleteAndUpdateTransactions(savingsAccountId)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Subscriber<List<SavingsAccountTransactionRequest>>() {
+                    @Override
+                    public void onCompleted() {
 
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onNext(List<SavingsAccountTransactionRequest>
+                                               savingsAccountTransactionRequests) {
+
+                    }
+                })
+        );
     }
 
+    public void updateSavingsAccountTransaction(SavingsAccountTransactionRequest request) {
+        checkViewAttached();
+        getMvpView().showProgressbar(true);
+        mSubscriptions.add(mDataManagerSavings.updateLoanRepaymentTransaction(request)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Subscriber<SavingsAccountTransactionRequest>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                    }
+
+                    @Override
+                    public void onNext(SavingsAccountTransactionRequest
+                                               savingsAccountTransactionRequest) {
+
+                    }
+                })
+        );
+    }
 }

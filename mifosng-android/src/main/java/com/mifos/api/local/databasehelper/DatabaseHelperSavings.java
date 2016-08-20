@@ -195,16 +195,22 @@ public class DatabaseHelperSavings {
      *
      * @param savingsAccountTransactionRequest SavingsAccountTransactionRequest Body
      * @param savingsAccountId                 SavingAccount Id
+     * @param savingsAccountType               SavingAccountType
+     * @param transactionType                  Transaction Type
+     *
      * @return SavingsAccountTransactionResponse
      */
     public Observable<SavingsAccountTransactionResponse> saveSavingsAccountTransaction(
-            final SavingsAccountTransactionRequest savingsAccountTransactionRequest,
-            final int savingsAccountId) {
+            final String savingsAccountType, final int savingsAccountId,
+            final String transactionType,
+            final SavingsAccountTransactionRequest savingsAccountTransactionRequest) {
         return Observable.defer(new Func0<Observable<SavingsAccountTransactionResponse>>() {
             @Override
             public Observable<SavingsAccountTransactionResponse> call() {
 
                 savingsAccountTransactionRequest.setSavingAccountId(savingsAccountId);
+                savingsAccountTransactionRequest.setSavingsAccountType(savingsAccountType);
+                savingsAccountTransactionRequest.setTransactionType(transactionType);
                 savingsAccountTransactionRequest.save();
 
                 return Observable.just(new SavingsAccountTransactionResponse());
