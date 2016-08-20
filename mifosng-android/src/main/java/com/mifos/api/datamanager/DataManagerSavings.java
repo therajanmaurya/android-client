@@ -184,4 +184,33 @@ public class DataManagerSavings {
     public Observable<List<SavingsAccountTransactionRequest>> getAllSavingsAccountTransactions() {
         return mDatabaseHelperSavings.getAllSavingsAccountTransaction();
     }
+
+
+    /**
+     * This method sending request DatabaseHelper and Deleting the SavingsAccountTransaction
+     * with savingsAccountId from SavingsAccountTransaction_Table and again loading list of
+     * SavingsAccountTransaction from Database.
+     *
+     * @param savingsAccountId Loan Id of the Loan
+     * @return List<SavingsAccountTransaction>
+     */
+    public Observable<List<SavingsAccountTransactionRequest>> deleteAndUpdateTransactions(
+            int savingsAccountId) {
+        return mDatabaseHelperSavings.deleteAndUpdateTransaction(savingsAccountId);
+    }
+
+
+    /**
+     * This Method updating SavingsAccountTransactionRequest in to Database and return the same
+     * SavingsAccountTransactionRequest to the Presenter
+     *
+     * @param savingsAccountTransactionRequest Updating SavingsAccountTransactionRequest
+     *                                         in to Database.
+     * @return LoanRepaymentRequest
+     */
+    public Observable<SavingsAccountTransactionRequest> updateLoanRepaymentTransaction(
+            SavingsAccountTransactionRequest savingsAccountTransactionRequest) {
+        return mDatabaseHelperSavings.updateSavingsAccountTransaction(
+                savingsAccountTransactionRequest);
+    }
 }

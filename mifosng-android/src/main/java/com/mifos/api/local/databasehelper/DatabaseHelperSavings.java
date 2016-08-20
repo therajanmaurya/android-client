@@ -11,6 +11,7 @@ import com.mifos.objects.accounts.savings.Transaction;
 import com.mifos.objects.accounts.savings.Transaction_Table;
 import com.mifos.objects.templates.savings.SavingsAccountTransactionTemplate;
 import com.mifos.objects.templates.savings.SavingsAccountTransactionTemplate_Table;
+import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 
 import java.util.Arrays;
@@ -193,7 +194,7 @@ public class DatabaseHelperSavings {
      * connection or if user making transaction in offline mode.
      *
      * @param savingsAccountTransactionRequest SavingsAccountTransactionRequest Body
-     * @param savingsAccountId  SavingAccount Id
+     * @param savingsAccountId                 SavingAccount Id
      * @return SavingsAccountTransactionResponse
      */
     public Observable<SavingsAccountTransactionResponse> saveSavingsAccountTransaction(
@@ -254,6 +255,55 @@ public class DatabaseHelperSavings {
                                 .queryList();
 
                 return Observable.just(savingsAccountTransactionRequests);
+            }
+        });
+    }
+
+    /**
+     * This Method Deleting the SavingsAccountTransaction with the SavingsAccount Id and loading the
+     * List<SavingsAccountTransactionRequest> from Database and return
+     * List<SavingsAccountTransactionRequest> to DataManagerSavings and DataManagerSaving sync the
+     * List<SavingsAccountTransactionRequest> to the SyncSavingsAccountTransaction.
+     *
+     * @param  savingsAccountId SavingsAccount Id
+     * @return List<SavingsAccountTransactionRequest>
+     */
+    public Observable<List<SavingsAccountTransactionRequest>> deleteAndUpdateTransaction(
+            final int savingsAccountId) {
+        return Observable.defer(new Func0<Observable<List<SavingsAccountTransactionRequest>>>() {
+            @Override
+            public Observable<List<SavingsAccountTransactionRequest>> call() {
+
+                //Deleting Entry from SavingsAccountTransactionRequest_Table with SavingsAccountId
+                Delete.table(SavingsAccountTransactionRequest.class,
+                        SavingsAccountTransactionRequest_Table
+                                .savingAccountId.eq(savingsAccountId));
+
+                List<SavingsAccountTransactionRequest> savingsAccountTransactionRequests =
+                        SQLite.select()
+                                .from(SavingsAccountTransactionRequest.class)
+                                .queryList();
+
+                return Observable.just(savingsAccountTransactionRequests);
+            }
+        });
+    }
+
+    /**
+     * This Method updating the SavingsAccountTransactionRequest to Database Table.
+     * this method will be called whenever error will come during sync the LoanRepayment. This
+     * method saving the Error message to the Error Table Column .
+     *
+     * @param savingsAccountTransactionRequest SavingsAccountTransaction to update
+     * @return SavingsAccountTransactionRequest
+     */
+    public Observable<SavingsAccountTransactionRequest> updateSavingsAccountTransaction(
+            final SavingsAccountTransactionRequest savingsAccountTransactionRequest) {
+        return Observable.defer(new Func0<Observable<SavingsAccountTransactionRequest>>() {
+            @Override
+            public Observable<SavingsAccountTransactionRequest> call() {
+                savingsAccountTransactionRequest.update();
+                return Observable.just(savingsAccountTransactionRequest);
             }
         });
     }
