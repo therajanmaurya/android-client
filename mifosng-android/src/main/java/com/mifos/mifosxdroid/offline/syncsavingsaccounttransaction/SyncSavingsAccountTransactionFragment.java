@@ -24,6 +24,7 @@ import com.mifos.mifosxdroid.core.util.Toaster;
 import com.mifos.objects.PaymentTypeOption;
 import com.mifos.objects.accounts.savings.SavingsAccountTransactionRequest;
 import com.mifos.utils.Constants;
+import com.mifos.utils.Network;
 import com.mifos.utils.PrefManager;
 
 import java.util.List;
@@ -150,7 +151,7 @@ public class SyncSavingsAccountTransactionFragment extends MifosBaseFragment imp
                 break;
             case DialogInterface.BUTTON_POSITIVE:
                 PrefManager.setUserStatus(Constants.USER_ONLINE);
-
+                checkNetworkConnectionAndSync();
                 break;
             default:
                 break;
@@ -164,10 +165,9 @@ public class SyncSavingsAccountTransactionFragment extends MifosBaseFragment imp
     }
 
     @Override
-    public void showEmptySavingsAccountTransactions() {
+    public void showEmptySavingsAccountTransactions(int message) {
         ll_error.setVisibility(View.VISIBLE);
-        mNoPayloadText.setText(getActivity()
-                .getResources().getString(R.string.no_repayment_to_sync));
+        mNoPayloadText.setText(getActivity().getResources().getString(message));
         mNoPayloadIcon.setImageResource(R.drawable.ic_assignment_turned_in_black_24dp);
     }
 
@@ -177,8 +177,17 @@ public class SyncSavingsAccountTransactionFragment extends MifosBaseFragment imp
     }
 
     @Override
+    public void checkNetworkConnectionAndSync() {
+        if (Network.isOnline(getActivity())) {
+            mSyncSavingsAccountTransactionPresenter.syncSavingsAccountTransactions();
+        } else {
+            Toaster.show(rootView, getResources().getString(R.string.error_network_not_available));
+        }
+    }
+
+    @Override
     public void showError(int message) {
-        Toaster.show(rootView, message);
+        Toaster.show(rootView, getResources().getString(message));
     }
 
     @Override
@@ -204,7 +213,7 @@ public class SyncSavingsAccountTransactionFragment extends MifosBaseFragment imp
         if (item.getItemId() == R.id.action_sync) {
             switch (PrefManager.getUserStatus()) {
                 case 0:
-
+                    checkNetworkConnectionAndSync();
                     break;
                 case 1:
                     showOfflineModeDialog();

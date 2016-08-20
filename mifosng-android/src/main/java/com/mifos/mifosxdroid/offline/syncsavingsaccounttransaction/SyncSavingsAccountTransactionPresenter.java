@@ -1,9 +1,11 @@
 package com.mifos.mifosxdroid.offline.syncsavingsaccounttransaction;
 
+import com.google.gson.Gson;
 import com.mifos.api.datamanager.DataManagerLoan;
 import com.mifos.api.datamanager.DataManagerSavings;
 import com.mifos.mifosxdroid.R;
 import com.mifos.mifosxdroid.base.BasePresenter;
+import com.mifos.objects.ErrorSyncServerMessage;
 import com.mifos.objects.PaymentTypeOption;
 import com.mifos.objects.accounts.savings.SavingsAccountTransactionRequest;
 import com.mifos.objects.accounts.savings.SavingsAccountTransactionResponse;
@@ -13,8 +15,10 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import retrofit2.adapter.rxjava.HttpException;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.plugins.RxJavaPlugins;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
@@ -24,12 +28,15 @@ import rx.subscriptions.CompositeSubscription;
 public class SyncSavingsAccountTransactionPresenter extends
         BasePresenter<SyncSavingsAccountTransactionMvpView>{
 
+    public final String LOG_TAG = getClass().getSimpleName();
 
     public final DataManagerSavings mDataManagerSavings;
     public final DataManagerLoan mDataManagerLoan;
     private CompositeSubscription mSubscriptions;
 
     private List<SavingsAccountTransactionRequest> mSavingsAccountTransactionRequests;
+
+    private int mTransactionIndex = 0;
 
     @Inject
     public SyncSavingsAccountTransactionPresenter(DataManagerSavings dataManagerSavings,
@@ -49,6 +56,76 @@ public class SyncSavingsAccountTransactionPresenter extends
     public void detachView() {
         super.detachView();
         mSubscriptions.unsubscribe();
+    }
+
+
+    public void syncSavingsAccountTransactions() {
+        if (mSavingsAccountTransactionRequests.size() != 0) {
+            mTransactionIndex = 0;
+            checkErrorAndSync();
+        } else {
+            getMvpView().showError(R.string.nothing_to_sync);
+        }
+    }
+
+
+    public void checkErrorAndSync() {
+        for (int i = 0; i < mSavingsAccountTransactionRequests.size(); ++i) {
+            if (mSavingsAccountTransactionRequests.get(i).getErrorMessage() == null) {
+
+                mTransactionIndex = i;
+
+                String savingAccountType =
+                        mSavingsAccountTransactionRequests.get(i).getSavingsAccountType();
+                int savingAccountId =
+                        mSavingsAccountTransactionRequests.get(i).getSavingAccountId();
+                String transactionType = mSavingsAccountTransactionRequests
+                        .get(i).getTransactionType();
+                processTransaction(savingAccountType, savingAccountId, transactionType,
+                        mSavingsAccountTransactionRequests.get(i));
+
+                break;
+            } else {
+                getMvpView().showError(R.string.error_fix_before_sync);
+            }
+        }
+    }
+
+
+    public void showTransactionSyncSuccessfully() {
+        deleteAndUpdateSavingsAccountTransaction(
+                mSavingsAccountTransactionRequests.get(mTransactionIndex).getSavingAccountId());
+    }
+
+    public void showTransactionSyncFailed(ErrorSyncServerMessage errorMessage) {
+        SavingsAccountTransactionRequest transaction = mSavingsAccountTransactionRequests.get
+                (mTransactionIndex);
+        transaction.setErrorMessage(errorMessage.getDefaultUserMessage());
+        updateSavingsAccountTransaction(transaction);
+    }
+
+    public void showTransactionUpdatedSuccessfully(SavingsAccountTransactionRequest transaction) {
+        mSavingsAccountTransactionRequests.set(mTransactionIndex, transaction);
+        getMvpView().showSavingsAccountTransactions(mSavingsAccountTransactionRequests);
+
+        mTransactionIndex = mTransactionIndex + 1;
+        if (mSavingsAccountTransactionRequests.size() != mTransactionIndex) {
+            syncSavingsAccountTransactions();
+        }
+    }
+
+    public void showTransactionDeletedAndUpdated(
+            List<SavingsAccountTransactionRequest> transactions) {
+
+        mTransactionIndex = 0;
+        mSavingsAccountTransactionRequests = transactions;
+        getMvpView().showSavingsAccountTransactions(transactions);
+        if (mSavingsAccountTransactionRequests.size() != 0) {
+            syncSavingsAccountTransactions();
+        } else {
+            getMvpView().showEmptySavingsAccountTransactions(R.string.nothing_to_sync);
+        }
+
     }
 
 
@@ -77,7 +154,8 @@ public class SyncSavingsAccountTransactionPresenter extends
                             getMvpView().showSavingsAccountTransactions(transactionRequests);
                             mSavingsAccountTransactionRequests = transactionRequests;
                         } else {
-                            getMvpView().showEmptySavingsAccountTransactions();
+                            getMvpView().showEmptySavingsAccountTransactions(
+                                    R.string.no_transaction_to_sync);
                         }
                     }
                 })
@@ -127,14 +205,26 @@ public class SyncSavingsAccountTransactionPresenter extends
 
                     @Override
                     public void onError(Throwable e) {
-                        getMvpView().showProgressbar(false);
-                        //getMvpView().showError(R.string.transaction_failed);
+                        try {
+                            if (e instanceof HttpException) {
+                                String errorMessage = ((HttpException) e).response().errorBody()
+                                        .string();
+                                Gson gson = new Gson();
+                                ErrorSyncServerMessage syncErrorMessage = gson.
+                                        fromJson(errorMessage, ErrorSyncServerMessage.class);
+                                getMvpView().showProgressbar(false);
+                                showTransactionSyncFailed(syncErrorMessage);
+                            }
+                        } catch (Throwable throwable) {
+                            RxJavaPlugins.getInstance().getErrorHandler().handleError(throwable);
+                        }
                     }
 
                     @Override
                     public void onNext(SavingsAccountTransactionResponse
                                                savingsAccountTransactionResponse) {
                         getMvpView().showProgressbar(false);
+                        showTransactionSyncSuccessfully();
                     }
                 }));
     }
@@ -154,13 +244,15 @@ public class SyncSavingsAccountTransactionPresenter extends
 
                     @Override
                     public void onError(Throwable e) {
-
+                        getMvpView().showProgressbar(false);
+                        getMvpView().showError(R.string.failed_to_update_list);
                     }
 
                     @Override
                     public void onNext(List<SavingsAccountTransactionRequest>
                                                savingsAccountTransactionRequests) {
-
+                        getMvpView().showProgressbar(false);
+                        showTransactionDeletedAndUpdated(savingsAccountTransactionRequests);
                     }
                 })
         );
@@ -180,13 +272,15 @@ public class SyncSavingsAccountTransactionPresenter extends
 
                     @Override
                     public void onError(Throwable e) {
-
+                        getMvpView().showProgressbar(false);
+                        getMvpView().showError(R.string.failed_to_update_savingsaccount);
                     }
 
                     @Override
                     public void onNext(SavingsAccountTransactionRequest
                                                savingsAccountTransactionRequest) {
-
+                        getMvpView().showProgressbar(false);
+                        showTransactionUpdatedSuccessfully(savingsAccountTransactionRequest);
                     }
                 })
         );

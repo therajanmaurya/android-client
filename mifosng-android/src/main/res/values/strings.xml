@@ -353,6 +353,7 @@
     <string name="no_repayment_to_sync">There is No LoanRepayment to Sync</string>
     <string name="no_group_payload_to_sync">There is No Group Payload to Sync</string>
     <string name="no_client_payload_to_sync">There is No Client Payload to Sync</string>
+    <string name="no_transaction_to_sync">here is No Transaction to Sync</string>
     <string name="no_more_clients_to_sync">No More Clients To Sync</string>
     <string name="all_repayment_synced">All LoanRepayment have been Sync</string>
     <string name="all_groups_synced">All Groups have been Sync</string>
@@ -406,6 +407,7 @@
     <string name="failed_to_fetch_savings_template">Failed to load Saving Template</string>
     <string name="failed_to_load_savingaccounttransaction">Failed to load
         SavingsAccountTransaction</string>
+    <string name="failed_to_update_savingsaccount">Failed to update Savings Accounts</string>
 
 
     <string-array name="office_ids">

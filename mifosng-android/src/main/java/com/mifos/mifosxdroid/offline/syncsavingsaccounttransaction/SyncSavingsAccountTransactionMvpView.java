@@ -13,9 +13,11 @@ public interface SyncSavingsAccountTransactionMvpView extends MvpView {
 
     void showSavingsAccountTransactions(List<SavingsAccountTransactionRequest> transactions);
 
-    void showEmptySavingsAccountTransactions();
+    void showEmptySavingsAccountTransactions(int synMessage);
 
     void showPaymentTypeOptions(List<PaymentTypeOption> paymentTypeOptions);
+
+    void checkNetworkConnectionAndSync();
 
     void showOfflineModeDialog();
 
