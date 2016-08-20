@@ -23,7 +23,7 @@ import butterknife.ButterKnife;
 public class SyncSavingsAccountTransactionAdapter extends
         RecyclerView.Adapter<SyncSavingsAccountTransactionAdapter.ViewHolder> {
 
-    List<SavingsAccountTransactionRequest> mSavingsAccountTransactionRequests;
+    private List<SavingsAccountTransactionRequest> mSavingsAccountTransactionRequests;
 
     @Inject
     public SyncSavingsAccountTransactionAdapter() {
@@ -41,6 +41,7 @@ public class SyncSavingsAccountTransactionAdapter extends
     public void setSavingsAccountTransactions(
             List<SavingsAccountTransactionRequest> savingsAccountTransactions) {
         mSavingsAccountTransactionRequests = savingsAccountTransactions;
+        notifyDataSetChanged();
     }
 
     @Override
@@ -48,7 +49,7 @@ public class SyncSavingsAccountTransactionAdapter extends
         SavingsAccountTransactionRequest transaction =
                 mSavingsAccountTransactionRequests.get(position);
 
-        holder.tv_savings_account_id.setText(transaction.getSavingAccountId());
+        holder.tv_savings_account_id.setText(String.valueOf(transaction.getSavingAccountId()));
         holder.tv_transaction_type.setText(transaction.getTransactionType());
         holder.tv_transaction_amount.setText(transaction.getTransactionAmount());
         holder.tv_transaction_date.setText(transaction.getTransactionDate());

@@ -225,6 +225,14 @@ public class OfflineDashboardFragment extends MifosBaseFragment implements
         }
     }
 
+    /**
+     * This method set the response of DataManager from DatabaseHelper, if
+     * List<SavingsAccountTransactionRequest> Size is zero, then decrease the value of
+     * mPayloadIndex by 1 and if size is not equal to zero then update the adapter and add the
+     * Card UI name and size() of the List to sync.
+     *
+     * @param transactions List<SavingsAccountTransaction>
+     */
     @Override
     public void showSavingsAccountTransaction(List<SavingsAccountTransactionRequest> transactions) {
         if (transactions.size() != 0) {

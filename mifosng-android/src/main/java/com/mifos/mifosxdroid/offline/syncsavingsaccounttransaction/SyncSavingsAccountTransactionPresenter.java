@@ -66,10 +66,13 @@ public class SyncSavingsAccountTransactionPresenter extends
                     }
 
                     @Override
-                    public void onNext(List<SavingsAccountTransactionRequest>
-                                               savingsAccountTransactionRequests) {
+                    public void onNext(List<SavingsAccountTransactionRequest> transactionRequests) {
                         getMvpView().showProgressbar(false);
-
+                        if (!transactionRequests.isEmpty()) {
+                            getMvpView().showSavingsAccountTransactions(transactionRequests);
+                        } else {
+                            getMvpView().showEmptySavingsAccountTransactions();
+                        }
                     }
                 })
         );
