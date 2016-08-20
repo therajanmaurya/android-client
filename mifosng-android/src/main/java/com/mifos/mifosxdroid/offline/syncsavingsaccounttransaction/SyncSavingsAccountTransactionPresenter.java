@@ -76,7 +76,7 @@ public class SyncSavingsAccountTransactionPresenter extends
     }
 
 
-    public void loanPaymentTypeOption() {
+    public void loadPaymentTypeOption() {
         checkViewAttached();
         getMvpView().showProgressbar(true);
         mSubscriptions.add(mDataManagerLoan.getPaymentTypeOption()

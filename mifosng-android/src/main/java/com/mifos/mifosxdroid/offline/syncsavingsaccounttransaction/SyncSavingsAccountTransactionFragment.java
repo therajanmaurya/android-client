@@ -15,17 +15,22 @@ import com.mifos.mifosxdroid.R;
 import com.mifos.mifosxdroid.adapters.SyncSavingsAccountTransactionAdapter;
 import com.mifos.mifosxdroid.core.MifosBaseActivity;
 import com.mifos.mifosxdroid.core.MifosBaseFragment;
+import com.mifos.mifosxdroid.core.util.Toaster;
+import com.mifos.objects.accounts.savings.SavingsAccountTransactionRequest;
+
+import java.util.List;
 
 import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 /**
  * Created by Rajan Maurya on 19/08/16.
  */
 public class SyncSavingsAccountTransactionFragment extends MifosBaseFragment implements
-        SyncSavingsAccountTransactionMvpView {
+        SyncSavingsAccountTransactionMvpView, SwipeRefreshLayout.OnRefreshListener {
 
 
     public final String LOG_TAG = getClass().getSimpleName();
@@ -81,23 +86,72 @@ public class SyncSavingsAccountTransactionFragment extends MifosBaseFragment imp
         rv_loan_repayment.setLayoutManager(mLayoutManager);
         rv_loan_repayment.setHasFixedSize(true);
         rv_loan_repayment.setAdapter(mSyncSavingsAccountTransactionAdapter);
+        swipeRefreshLayout.setColorSchemeColors(getActivity()
+                .getResources().getIntArray(R.array.swipeRefreshColors));
+
+        //Loading LoanRepayment Transactions  and PaymentTypeOptions From Database
+        mSyncSavingsAccountTransactionPresenter.loadDatabaseSavingsAccountTransactions();
+        mSyncSavingsAccountTransactionPresenter.loadPaymentTypeOption();
 
         return rootView;
     }
 
+    /**
+     * Loading All SavingsAccount Transactions from Database On SwipeRefresh
+     */
     @Override
-    public void showProgressbar(boolean b) {
+    public void onRefresh() {
+        //Loading LoanRepayment Transactions and PaymentTypeOptions From Database
+        mSyncSavingsAccountTransactionPresenter.loadDatabaseSavingsAccountTransactions();
+        mSyncSavingsAccountTransactionPresenter.loadPaymentTypeOption();
 
+        if (swipeRefreshLayout.isRefreshing())
+            swipeRefreshLayout.setRefreshing(false);
+    }
+
+    /**
+     * Show when Database response is null or failed to fetch the
+     * List<SavingsAccountTransactionRequest>
+     * Onclick Send Fresh Request for List<SavingsAccountTransactionRequest>.
+     */
+    @OnClick(R.id.noPayloadIcon)
+    public void reloadOnError() {
+        ll_error.setVisibility(View.GONE);
+        mSyncSavingsAccountTransactionPresenter.loadDatabaseSavingsAccountTransactions();
+    }
+
+    @Override
+    public void showSavingsAccountTransactions(List<SavingsAccountTransactionRequest> transactions) {
+        mSyncSavingsAccountTransactionAdapter.setSavingsAccountTransactions(transactions);
+    }
+
+    @Override
+    public void showEmptySavingsAccountTransactions() {
+        ll_error.setVisibility(View.VISIBLE);
+        mNoPayloadText.setText(getActivity()
+                .getResources().getString(R.string.no_repayment_to_sync));
+        mNoPayloadIcon.setImageResource(R.drawable.ic_assignment_turned_in_black_24dp);
+    }
+
+    @Override
+    public void showError() {
+        Toaster.show(rootView, "");
+    }
+
+    @Override
+    public void showProgressbar(boolean show) {
+        swipeRefreshLayout.setRefreshing(show);
+        if (show && mSyncSavingsAccountTransactionAdapter.getItemCount() == 0) {
+            showMifosProgressBar();
+            swipeRefreshLayout.setRefreshing(false);
+        } else {
+            hideMifosProgressBar();
+        }
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         mSyncSavingsAccountTransactionPresenter.detachView();
-    }
-
-    @Override
-    public void showError() {
-
     }
 }

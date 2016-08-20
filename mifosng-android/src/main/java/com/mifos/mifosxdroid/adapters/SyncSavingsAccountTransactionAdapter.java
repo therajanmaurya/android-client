@@ -45,6 +45,13 @@ public class SyncSavingsAccountTransactionAdapter extends
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
+        SavingsAccountTransactionRequest transaction =
+                mSavingsAccountTransactionRequests.get(position);
+
+        holder.tv_savings_account_id.setText(transaction.getSavingAccountId());
+        holder.tv_transaction_type.setText(transaction.getTransactionType());
+        holder.tv_transaction_amount.setText(transaction.getTransactionAmount());
+        holder.tv_transaction_date.setText(transaction.getTransactionDate());
 
     }
 
