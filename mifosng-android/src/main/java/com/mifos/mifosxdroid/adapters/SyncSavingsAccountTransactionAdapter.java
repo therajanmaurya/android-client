@@ -68,6 +68,11 @@ public class SyncSavingsAccountTransactionAdapter extends
         holder.tv_transaction_amount.setText(transaction.getTransactionAmount());
         holder.tv_transaction_date.setText(transaction.getTransactionDate());
 
+        if (transaction.getErrorMessage() != null) {
+            holder.tv_error_message.setText(transaction.getErrorMessage());
+            holder.tv_error_message.setVisibility(View.VISIBLE);
+        }
+
     }
 
     @Override
