@@ -34,7 +34,7 @@ import butterknife.ButterKnife;
  */
 public class SurveyListFragment extends ProgressableFragment implements SurveyListMvpView {
 
-    private static final String CLIENTID = "ClientID";
+    private static final String CLIENT_ID = "ClientId";
 
     @BindView(R.id.lv_surveys_list)
     ListView lv_surveys_list;
@@ -47,10 +47,10 @@ public class SurveyListFragment extends ProgressableFragment implements SurveyLi
     private View rootView;
     private int clientId;
 
-    public static SurveyListFragment newInstance(int clientid) {
+    public static SurveyListFragment newInstance(int clientId) {
         SurveyListFragment fragment = new SurveyListFragment();
         Bundle bundle = new Bundle();
-        bundle.putInt(CLIENTID, clientid);
+        bundle.putInt(CLIENT_ID, clientId);
         fragment.setArguments(bundle);
         return fragment;
     }
@@ -59,6 +59,9 @@ public class SurveyListFragment extends ProgressableFragment implements SurveyLi
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ((MifosBaseActivity) getActivity()).getActivityComponent().inject(this);
+        if (getArguments() != null) {
+            clientId = getArguments().getInt(CLIENT_ID);
+        }
     }
 
     @Override
@@ -68,8 +71,6 @@ public class SurveyListFragment extends ProgressableFragment implements SurveyLi
 
         ButterKnife.bind(this, rootView);
         mSurveyListPresenter.attachView(this);
-
-        clientId = getArguments().getInt(CLIENTID);
 
         mSurveyListPresenter.loadSurveyList();
 

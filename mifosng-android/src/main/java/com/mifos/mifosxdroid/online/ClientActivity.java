@@ -5,8 +5,10 @@
 
 package com.mifos.mifosxdroid.online;
 
+import android.content.Intent;
 import android.os.Bundle;
 
+import com.google.gson.Gson;
 import com.mifos.mifosxdroid.R;
 import com.mifos.mifosxdroid.core.MifosBaseActivity;
 import com.mifos.mifosxdroid.online.clientdetails.ClientDetailsFragment;
@@ -16,9 +18,11 @@ import com.mifos.mifosxdroid.online.loanrepaymentschedule.LoanRepaymentScheduleF
 import com.mifos.mifosxdroid.online.loantransactions.LoanTransactionsFragment;
 import com.mifos.mifosxdroid.online.savingaccountsummary.SavingsAccountSummaryFragment;
 import com.mifos.mifosxdroid.online.savingaccounttransaction.SavingsAccountTransactionFragment;
+import com.mifos.mifosxdroid.online.surveylist.SurveyListFragment;
 import com.mifos.objects.accounts.loan.LoanWithAssociations;
 import com.mifos.objects.accounts.savings.DepositType;
 import com.mifos.objects.accounts.savings.SavingsAccountWithAssociations;
+import com.mifos.objects.survey.Survey;
 import com.mifos.utils.Constants;
 
 import butterknife.ButterKnife;
@@ -26,7 +30,8 @@ import butterknife.ButterKnife;
 public class ClientActivity extends MifosBaseActivity implements ClientDetailsFragment
         .OnFragmentInteractionListener,
         LoanAccountSummaryFragment.OnFragmentInteractionListener,
-        SavingsAccountSummaryFragment.OnFragmentInteractionListener {
+        SavingsAccountSummaryFragment.OnFragmentInteractionListener,
+        SurveyListFragment.OnFragmentInteractionListener{
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,5 +116,13 @@ public class ClientActivity extends MifosBaseActivity implements ClientDetailsFr
         replaceFragment(SavingsAccountTransactionFragment.newInstance
                 (savingsAccountWithAssociations, transactionType, accountType), true, R.id
                 .container);
+    }
+
+    @Override
+    public void loadSurveyQuestion(Survey survey, int Clientid) {
+        Intent myIntent = new Intent(this, SurveyQuestionViewPager.class);
+        myIntent.putExtra("Survey", (new Gson()).toJson(survey));
+        myIntent.putExtra("ClientId", Clientid);
+        startActivity(myIntent);
     }
 }
