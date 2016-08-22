@@ -31,7 +31,7 @@ public class ClientActivity extends MifosBaseActivity implements ClientDetailsFr
         .OnFragmentInteractionListener,
         LoanAccountSummaryFragment.OnFragmentInteractionListener,
         SavingsAccountSummaryFragment.OnFragmentInteractionListener,
-        SurveyListFragment.OnFragmentInteractionListener{
+        SurveyListFragment.OnFragmentInteractionListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,11 +118,17 @@ public class ClientActivity extends MifosBaseActivity implements ClientDetailsFr
                 .container);
     }
 
+    /**
+     * Called when the Survey Question Card Click and Survey Question View opens for making survey.
+     *
+     * @param survey   Survey
+     * @param clientId Client Id
+     */
     @Override
-    public void loadSurveyQuestion(Survey survey, int Clientid) {
+    public void loadSurveyQuestion(Survey survey, int clientId) {
         Intent myIntent = new Intent(this, SurveyQuestionViewPager.class);
         myIntent.putExtra("Survey", (new Gson()).toJson(survey));
-        myIntent.putExtra("ClientId", Clientid);
+        myIntent.putExtra("ClientId", clientId);
         startActivity(myIntent);
     }
 }

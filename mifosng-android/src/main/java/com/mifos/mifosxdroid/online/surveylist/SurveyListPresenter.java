@@ -47,7 +47,6 @@ public class SurveyListPresenter extends BasePresenter<SurveyListMvpView> {
                 .subscribe(new Subscriber<List<Survey>>() {
                     @Override
                     public void onCompleted() {
-                        getMvpView().showProgressbar(false);
                     }
 
                     @Override

@@ -30,6 +30,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 /**
+ * This Class Show
  * Created by Nasim Banu on 27,January,2016.
  */
 public class SurveyListFragment extends ProgressableFragment implements SurveyListMvpView {
@@ -42,7 +43,6 @@ public class SurveyListFragment extends ProgressableFragment implements SurveyLi
     @Inject
     SurveyListPresenter mSurveyListPresenter;
 
-    private SurveyListAdapter surveyListAdapter;
     private OnFragmentInteractionListener mListener;
     private View rootView;
     private int clientId;
@@ -78,27 +78,8 @@ public class SurveyListFragment extends ProgressableFragment implements SurveyLi
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.mItem_search)
-            getActivity().finish();
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        Activity activity = context instanceof Activity ? (Activity) context : null;
-        try {
-            mListener = (OnFragmentInteractionListener) activity;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString() + " must implement " +
-                    "OnFragmentInteractionListener");
-        }
-    }
-
-    @Override
     public void showAllSurvey(final List<Survey> surveys) {
-        surveyListAdapter = new SurveyListAdapter(getActivity(), surveys);
+        SurveyListAdapter surveyListAdapter = new SurveyListAdapter(getActivity(), surveys);
         lv_surveys_list.setAdapter(surveyListAdapter);
         lv_surveys_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -119,6 +100,25 @@ public class SurveyListFragment extends ProgressableFragment implements SurveyLi
     }
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.mItem_search)
+            getActivity().finish();
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        Activity activity = context instanceof Activity ? (Activity) context : null;
+        try {
+            mListener = (OnFragmentInteractionListener) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString() + " must implement " +
+                    "OnFragmentInteractionListener");
+        }
+    }
+
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
         mSurveyListPresenter.detachView();
@@ -126,7 +126,7 @@ public class SurveyListFragment extends ProgressableFragment implements SurveyLi
 
     public interface OnFragmentInteractionListener {
 
-        void loadSurveyQuestion(Survey survey, int Clientid);
+        void loadSurveyQuestion(Survey survey, int clientId);
     }
 
 }
