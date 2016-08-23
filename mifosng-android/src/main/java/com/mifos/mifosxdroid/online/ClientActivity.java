@@ -126,9 +126,9 @@ public class ClientActivity extends MifosBaseActivity implements ClientDetailsFr
      */
     @Override
     public void loadSurveyQuestion(Survey survey, int clientId) {
-        Intent myIntent = new Intent(this, SurveyQuestionViewPager.class);
-        myIntent.putExtra("Survey", (new Gson()).toJson(survey));
-        myIntent.putExtra("ClientId", clientId);
+        Intent myIntent = new Intent(this, SurveyQuestionActivity.class);
+        myIntent.putExtra(Constants.SURVEYS, (new Gson()).toJson(survey));
+        myIntent.putExtra(Constants.CLIENT_ID, clientId);
         startActivity(myIntent);
     }
 }

@@ -10,7 +10,7 @@ import android.os.Bundle;
 
 import com.google.gson.Gson;
 import com.mifos.mifosxdroid.core.MifosBaseActivity;
-import com.mifos.mifosxdroid.online.SurveyQuestionViewPager;
+import com.mifos.mifosxdroid.online.SurveyQuestionActivity;
 import com.mifos.mifosxdroid.online.clientchoose.ClientChooseFragment;
 import com.mifos.mifosxdroid.online.surveylist.SurveyListFragment;
 import com.mifos.objects.survey.Survey;
@@ -26,7 +26,7 @@ public class SurveyActivity extends MifosBaseActivity implements SurveyListFragm
 
     @Override
     public void loadSurveyQuestion(Survey survey, int Clientid) {
-        Intent myIntent = new Intent(SurveyActivity.this, SurveyQuestionViewPager.class);
+        Intent myIntent = new Intent(SurveyActivity.this, SurveyQuestionActivity.class);
         myIntent.putExtra("Survey", (new Gson()).toJson(survey));
         myIntent.putExtra("ClientId", Clientid);
         startActivity(myIntent);

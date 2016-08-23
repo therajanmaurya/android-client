@@ -21,7 +21,7 @@ import com.mifos.mifosxdroid.R;
 import com.mifos.mifosxdroid.core.MifosBaseActivity;
 import com.mifos.mifosxdroid.core.MifosBaseFragment;
 import com.mifos.mifosxdroid.online.Communicator;
-import com.mifos.mifosxdroid.online.SurveyQuestionViewPager;
+import com.mifos.mifosxdroid.online.SurveyQuestionActivity;
 import com.mifos.objects.survey.Scorecard;
 
 import javax.inject.Inject;
@@ -62,7 +62,7 @@ public class SurveySubmitFragment extends MifosBaseFragment implements Communica
     public void onAttach(Context context) {
         super.onAttach(context);
         this.context = context;
-        ((SurveyQuestionViewPager) context).fragmentCommunicator = this;
+        ((SurveyQuestionActivity) context).fragmentCommunicator = this;
         Activity activity = (Activity) context;
         try {
             mDetachFragment = (DisableSwipe) activity;
