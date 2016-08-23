@@ -2,11 +2,19 @@ package com.mifos.api.datamanager;
 
 import com.mifos.api.BaseApiManager;
 import com.mifos.api.local.databasehelper.DatabaseHelperSurveys;
+import com.mifos.objects.survey.Survey;
+
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import rx.Observable;
+
 /**
+ * This DataManager is for Managing Survey API, In which Request is going to Server
+ * and In Response, We are getting Survey API Observable Response using Retrofit 2 .
+ *
  * Created by Rajan Maurya on 22/08/16.
  */
 @Singleton
@@ -22,5 +30,16 @@ public class DataManagerSurveys {
         mDatabaseHelperSurveys = databaseHelperSurveys;
     }
 
+
+    /**
+     * This Method sending the Request to REST API :
+     * https://demo.openmf.org/fineract-provider/api/v1/surveys and fetch the list of surveys and
+     * returns the Observable<List<Survey>> to the Presenter.
+     *
+     * @return Observable<List<Survey>>
+     */
+    public Observable<List<Survey>> getAllSurvey() {
+        return mBaseApiManager.getSurveyApi().getAllSurveys();
+    }
 
 }
