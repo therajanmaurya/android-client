@@ -2,6 +2,7 @@ package com.mifos.api.datamanager;
 
 import com.mifos.api.BaseApiManager;
 import com.mifos.api.local.databasehelper.DatabaseHelperSurveys;
+import com.mifos.objects.survey.Scorecard;
 import com.mifos.objects.survey.Survey;
 
 import java.util.List;
@@ -42,4 +43,19 @@ public class DataManagerSurveys {
         return mBaseApiManager.getSurveyApi().getAllSurveys();
     }
 
+
+    /**
+     * This Method sending the request to the REST API :
+     * https://demo.openmf.org/fineract-provider/api/v1/surveys/{surveyId}/scorecards
+     * @param surveyId Survey Id
+     * @param scorecardPayload Scorecard Payload
+     * @return Scorecard
+     */
+    public Observable<Scorecard> submitScore(int surveyId, Scorecard scorecardPayload) {
+        return mBaseApiManager.getSurveyApi().submitScore(surveyId, scorecardPayload);
+    }
+
+    public Observable<Survey> getSurvey(int surveyId) {
+        return mBaseApiManager.getSurveyApi().getSurvey(surveyId);
+    }
 }
