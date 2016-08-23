@@ -80,6 +80,8 @@ public class Constants {
 
     public static final String ANSWERS = "answers";
 
+    public static final String QUESTION_DATA = "question data";
+
 
     /**
      * Constants to identify which Data Tables have to be shown
