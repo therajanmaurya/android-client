@@ -114,9 +114,9 @@ public class DataManagerGroups {
     }
 
     /**
-     *
-     * @param groupId
-     * @return
+     * This Method Fetch the Clients that are attached to the Group.
+     * @param groupId Group Id
+     * @return GroupWithAssociations
      */
     public Observable<GroupWithAssociations> getGroupWithAssociations(int groupId) {
         switch (PrefManager.getUserStatus()) {
