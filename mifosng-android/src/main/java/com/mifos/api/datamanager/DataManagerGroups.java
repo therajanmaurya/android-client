@@ -6,6 +6,7 @@ import com.mifos.objects.accounts.GroupAccounts;
 import com.mifos.objects.client.Page;
 import com.mifos.objects.group.Group;
 import com.mifos.objects.group.GroupPayload;
+import com.mifos.objects.group.GroupWithAssociations;
 import com.mifos.utils.PrefManager;
 
 import java.util.List;
@@ -112,6 +113,25 @@ public class DataManagerGroups {
         return mDatabaseHelperGroups.saveGroup(group);
     }
 
+    /**
+     *
+     * @param groupId
+     * @return
+     */
+    public Observable<GroupWithAssociations> getGroupWithAssociations(int groupId) {
+        switch (PrefManager.getUserStatus()) {
+            case 0:
+                return mBaseApiManager.getGroupApi().getGroupWithAssociations(groupId);
+            case 1:
+                /**
+                 * Return Groups from DatabaseHelperGroups.
+                 */
+                //return mDatabaseHelperGroups.getGroup(groupId);
+
+            default:
+                return Observable.just(new GroupWithAssociations());
+        }
+    }
 
     /**
      * This method fetch the Group Accounts if the User status is zero and otherwise load the
