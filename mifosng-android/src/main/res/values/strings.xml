@@ -119,6 +119,8 @@
     <string name="package_name">Package Name</string>
     <string name="document_download">Document Download</string>
     <string name="Document_delete">Document Delete</string>
+    <string name="document_directory">/mifos/documents/</string>
+    <string name="open_document">Open Document</string>
 
     <!-- General Terms End Here -->
 
@@ -412,8 +414,15 @@
         permission the app is unable to upload document when uploading document, app need to
         access photos media and files on your device. Are you sure you want to deny this
         permission?</string>
-    <string name="dialog_message_permission_never_ask_again">App Needs the Permission to
+    <string name="dialog_message_write_external_storage_permission_denied">With out this
+        permission the app is unable to save document when downloading document, app need to
+        access external write storage permission. Are you sure you want to deny this
+        permission?</string>
+    <string name="dialog_message_permission_never_ask_again_read">App Needs the Permission to
         Read the External Storage but you had previously checked the Button Never Ask Again.
+    </string>
+    <string name="dialog_message_permission_never_ask_again_write">App Needs the Permission to
+        Write the External Storage but you had previously checked the Button Never Ask Again.
     </string>
 
     <!--Material Dialog-->

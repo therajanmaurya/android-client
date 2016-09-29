@@ -5,14 +5,21 @@
 
 package com.mifos.mifosxdroid.online.documentlist;
 
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -30,9 +37,14 @@ import com.mifos.mifosxdroid.core.RecyclerItemClickListener;
 import com.mifos.mifosxdroid.core.util.Toaster;
 import com.mifos.mifosxdroid.dialogfragments.documentdialog.DocumentDialogFragment;
 import com.mifos.objects.noncore.Document;
+import com.mifos.utils.CheckSelfPermissionAndRequest;
 import com.mifos.utils.Constants;
 import com.mifos.utils.FragmentConstants;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,6 +59,8 @@ public class DocumentListFragment extends MifosBaseFragment implements DocumentL
         RecyclerItemClickListener.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
 
     public static final int MENU_ITEM_ADD_NEW_DOCUMENT = 1000;
+
+    public static final String LOG_TAG = DocumentListFragment.class.getSimpleName();
 
     @BindView(R.id.rv_documents)
     RecyclerView rv_documents;
@@ -72,6 +86,8 @@ public class DocumentListFragment extends MifosBaseFragment implements DocumentL
     private View rootView;
     private String entityType;
     private int entityId;
+    private Document document;
+    private ResponseBody documentBody;
     private List<Document> mDocumentList;
 
     public static DocumentListFragment newInstance(String entityType, int entiyId) {
@@ -85,11 +101,7 @@ public class DocumentListFragment extends MifosBaseFragment implements DocumentL
 
     @Override
     public void onItemClick(View childView, int position) {
-        /*AsyncFileDownloader asyncFileDownloader =
-                new AsyncFileDownloader(getActivity(), mDocumentList.get(position).getFileName());
-        asyncFileDownloader.execute(entityType, String.valueOf(entityId),
-                String.valueOf(mDocumentList.get(position).getId()));*/
-
+        document = mDocumentList.get(position);
         showDocumentPopUpMenu(mDocumentList.get(position).getId());
     }
 
@@ -145,6 +157,64 @@ public class DocumentListFragment extends MifosBaseFragment implements DocumentL
         mDocumentListPresenter.loadDocumentList(entityType, entityId);
     }
 
+    /**
+     * This Method Checking the Permission WRITE_EXTERNAL_STORAGE is granted or not.
+     * If not then prompt user a dialog to grant the WRITE_EXTERNAL_STORAGE permission.
+     * and If Permission is granted already then Save the documentBody in external storage;
+     */
+    @Override
+    public void checkPermissionAndRequest() {
+        if (CheckSelfPermissionAndRequest.checkSelfPermission(getActivity(),
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            checkExternalStorageAndCreateDocument();
+        } else {
+            requestPermission();
+        }
+    }
+
+    @Override
+    public void requestPermission() {
+        CheckSelfPermissionAndRequest.requestPermission(
+                (MifosBaseActivity) getActivity(),
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Constants.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE,
+                getResources().getString(
+                        R.string.dialog_message_write_external_storage_permission_denied),
+                getResources().getString(R.string.dialog_message_permission_never_ask_again_write),
+                Constants.WRITE_EXTERNAL_STORAGE_STATUS);
+    }
+
+    /**
+     * This Method getting the Response after User Grant or denied the Permission
+     *
+     * @param requestCode  Request Code
+     * @param permissions  Permission
+     * @param grantResults GrantResults
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case Constants.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // permission was granted, yay! Do the
+                    checkExternalStorageAndCreateDocument();
+
+                } else {
+
+                    // permission denied, boo! Disable the
+                    Toaster.show(rootView, getResources()
+                            .getString(R.string.permission_denied_to_read_external_document));
+                }
+            }
+        }
+    }
+
+
     @Override
     public void showDocumentList(final List<Document> documents) {
         mDocumentList = documents;
@@ -153,7 +223,8 @@ public class DocumentListFragment extends MifosBaseFragment implements DocumentL
 
     @Override
     public void showDocumentSuccessfully(ResponseBody responseBody) {
-
+        documentBody = responseBody;
+        checkPermissionAndRequest();
     }
 
     @Override
@@ -181,6 +252,50 @@ public class DocumentListFragment extends MifosBaseFragment implements DocumentL
         });
 
         popup.show();
+    }
+
+    @Override
+    public void checkExternalStorageAndCreateDocument() {
+        // Create a path where we will place our documents in the user's
+        // public pictures directory and check if the file exists.  If
+        // external storage is not currently mounted this will think the
+        // picture doesn't exist.
+        File mifosDirectory = new File(Environment.getExternalStorageDirectory(),
+                getResources().getString(R.string.document_directory));
+        if (!mifosDirectory.exists()) {
+            mifosDirectory.mkdirs();
+        }
+
+        try {
+            File documentFile = new File(mifosDirectory.getPath(), document.getName());
+            OutputStream output = new FileOutputStream(documentFile);
+            try {
+                try {
+                    byte[] buffer = new byte[4 * 1024]; // or other buffer size
+                    int read;
+
+                    while ((read = documentBody.byteStream().read(buffer)) != -1) {
+                        output.write(buffer, 0, read);
+                    }
+                    output.flush();
+                } finally {
+                    output.close();
+                }
+            } catch (Exception e) {
+                Log.d(LOG_TAG, e.getLocalizedMessage()); // handle exception, define IOException
+                // and others
+            }
+        } catch (FileNotFoundException e) {
+            Log.d(LOG_TAG, e.getLocalizedMessage());
+        } finally {
+            documentBody.close();
+        }
+
+        //Opening the Saved Document
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setDataAndType(Uri.parse(mifosDirectory.getPath()), document.getType());
+        startActivity(Intent.createChooser(intent,
+                getResources().getString(R.string.open_document)));
     }
 
     @Override
