@@ -11,6 +11,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -29,7 +30,6 @@ import com.mifos.mifosxdroid.core.RecyclerItemClickListener;
 import com.mifos.mifosxdroid.core.util.Toaster;
 import com.mifos.mifosxdroid.dialogfragments.documentdialog.DocumentDialogFragment;
 import com.mifos.objects.noncore.Document;
-import com.mifos.utils.AsyncFileDownloader;
 import com.mifos.utils.Constants;
 import com.mifos.utils.FragmentConstants;
 
@@ -41,6 +41,7 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import okhttp3.ResponseBody;
 
 public class DocumentListFragment extends MifosBaseFragment implements DocumentListMvpView,
         RecyclerItemClickListener.OnItemClickListener, SwipeRefreshLayout.OnRefreshListener {
@@ -84,10 +85,12 @@ public class DocumentListFragment extends MifosBaseFragment implements DocumentL
 
     @Override
     public void onItemClick(View childView, int position) {
-        AsyncFileDownloader asyncFileDownloader =
+        /*AsyncFileDownloader asyncFileDownloader =
                 new AsyncFileDownloader(getActivity(), mDocumentList.get(position).getFileName());
         asyncFileDownloader.execute(entityType, String.valueOf(entityId),
-                String.valueOf(mDocumentList.get(position).getId()));
+                String.valueOf(mDocumentList.get(position).getId()));*/
+
+        showDocumentPopUpMenu(mDocumentList.get(position).getId());
     }
 
     @Override
@@ -146,6 +149,38 @@ public class DocumentListFragment extends MifosBaseFragment implements DocumentL
     public void showDocumentList(final List<Document> documents) {
         mDocumentList = documents;
         mDocumentListAdapter.setDocuments(mDocumentList);
+    }
+
+    @Override
+    public void showDocumentSuccessfully(ResponseBody responseBody) {
+
+    }
+
+    @Override
+    public void showDocumentPopUpMenu(final int documentId) {
+        PopupMenu popup =
+                new PopupMenu(getContext(), getActivity().findViewById(R.id.rv_documents));
+        popup.getMenuInflater().inflate(R.menu.document_options, popup.getMenu());
+
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.document_download:
+                        mDocumentListPresenter.downloadDocument(entityType, entityId, documentId);
+                        break;
+
+                    case R.id.document_delete:
+
+                        break;
+
+                    default:
+                        break;
+                }
+                return true;
+            }
+        });
+
+        popup.show();
     }
 
     @Override

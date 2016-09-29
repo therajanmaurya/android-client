@@ -117,6 +117,8 @@
     <string name="savings_account_submitted_for_approval">The Savings Account has been submitted for
         Approval</string>
     <string name="package_name">Package Name</string>
+    <string name="document_download">Document Download</string>
+    <string name="Document_delete">Document Delete</string>
 
     <!-- General Terms End Here -->
 

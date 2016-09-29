@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import okhttp3.MultipartBody;
+import okhttp3.ResponseBody;
 import rx.Observable;
 
 /**
@@ -33,5 +34,10 @@ public class DataManagerDocument {
     public Observable<GenericResponse> createDocument(
             String type, int id, String name, String desc, MultipartBody.Part file) {
         return mBaseApiManager.getDocumentApi().createDocument(type, id, name, desc, file);
+    }
+
+    public Observable<ResponseBody> downloadDocument(String entityType, int entityId,
+                                                     int documentId) {
+        return mBaseApiManager.getDocumentApi().downloadDocument(entityType, entityId, documentId);
     }
 }
