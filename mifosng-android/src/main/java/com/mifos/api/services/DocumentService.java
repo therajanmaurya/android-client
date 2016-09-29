@@ -12,6 +12,7 @@ import java.util.List;
 
 import okhttp3.MultipartBody;
 import okhttp3.ResponseBody;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
@@ -61,4 +62,21 @@ public interface DocumentService {
     Observable<ResponseBody> downloadDocument(@Path("entityType") String entityType,
                                               @Path("entityId") int entityId,
                                               @Path("documentId") int documentId);
+
+    /**
+     * This Service is for Deleting the Document with EntityType and EntityId and Document Id.
+     * Rest End Point :
+     * https://demo.openmf.org/fineract-provider/api/v1/{entityType}/{entityId}/documents/
+     * {documentId}
+     *
+     * @param entityType    - Type for which document is being uploaded (Client, Loan
+     *                                or Savings etc)
+     * @param entityId      - Id of Entity
+     * @param documentId    - Document Id
+     * @return
+     */
+    @DELETE("{entityType}/{entityId}/" + APIEndPoint.DOCUMENTS + "/{documentId}")
+    Observable<GenericResponse> removeDocument(@Path("entityType") String entityType,
+                                               @Path("entityId") int entityId,
+                                               @Path("documentId") int documentId);
 }

@@ -121,6 +121,8 @@
     <string name="Document_delete">Document Delete</string>
     <string name="document_directory">/mifos/documents/</string>
     <string name="open_document">Open Document</string>
+    <string name="document_remove_successfully">Document Removed Successfully</string>
+    <string name="document_fetch_successfully">Document Fetch Successfully</string>
 
     <!-- General Terms End Here -->
 
@@ -470,6 +472,8 @@
     <string name="failed_to_fetch_center">Failed to Fetch Center</string>
     <string name="failed_to_fetch_Group_and_meeting">Failed to Fetch Group and Meeting</string>
     <string name="failed_to_fetch_group_and_account">Failed to fetch group and accounts</string>
+    <string name="failed_fetch_document">Failed to fetch document</string>
+    <string name="failed_to_remove_document">Failed  to remove document</string>
 
 
     <string-array name="office_ids">

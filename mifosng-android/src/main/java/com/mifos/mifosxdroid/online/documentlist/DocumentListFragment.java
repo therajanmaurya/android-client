@@ -222,7 +222,7 @@ public class DocumentListFragment extends MifosBaseFragment implements DocumentL
     }
 
     @Override
-    public void showDocumentSuccessfully(ResponseBody responseBody) {
+    public void showDocumentFetchSuccessfully(ResponseBody responseBody) {
         documentBody = responseBody;
         checkPermissionAndRequest();
     }
@@ -241,7 +241,7 @@ public class DocumentListFragment extends MifosBaseFragment implements DocumentL
                         break;
 
                     case R.id.document_delete:
-
+                        mDocumentListPresenter.removeDocument(entityType, entityId, documentId);
                         break;
 
                     default:
@@ -296,6 +296,11 @@ public class DocumentListFragment extends MifosBaseFragment implements DocumentL
         intent.setDataAndType(Uri.parse(mifosDirectory.getPath()), document.getType());
         startActivity(Intent.createChooser(intent,
                 getResources().getString(R.string.open_document)));
+    }
+
+    @Override
+    public void showDocumentRemovedSuccessfully() {
+        Toaster.show(rootView, getResources().getString(R.string.document_remove_successfully));
     }
 
     @Override

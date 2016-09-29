@@ -14,7 +14,7 @@ public interface DocumentListMvpView extends MvpView {
 
     void showDocumentList(List<Document> documents);
 
-    void showDocumentSuccessfully(ResponseBody responseBody);
+    void showDocumentFetchSuccessfully(ResponseBody responseBody);
 
     void checkPermissionAndRequest();
 
@@ -23,6 +23,8 @@ public interface DocumentListMvpView extends MvpView {
     void showDocumentPopUpMenu(int documentId);
 
     void checkExternalStorageAndCreateDocument();
+
+    void showDocumentRemovedSuccessfully();
 
     void showEmptyDocuments();
 

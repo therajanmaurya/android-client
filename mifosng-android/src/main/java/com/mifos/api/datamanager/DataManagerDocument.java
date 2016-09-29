@@ -40,4 +40,9 @@ public class DataManagerDocument {
                                                      int documentId) {
         return mBaseApiManager.getDocumentApi().downloadDocument(entityType, entityId, documentId);
     }
+
+    public Observable<GenericResponse> removeDocument(String entityType, int entityId,
+                                                      int documentId) {
+        return mBaseApiManager.getDocumentApi().removeDocument(entityType, entityId, documentId);
+    }
 }
