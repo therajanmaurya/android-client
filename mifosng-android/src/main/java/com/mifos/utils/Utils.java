@@ -2,6 +2,7 @@ package com.mifos.utils;
 
 import android.content.Context;
 import android.util.Log;
+import android.webkit.MimeTypeMap;
 
 import com.mifos.objects.PaymentTypeOption;
 import com.mifos.objects.accounts.loan.LoanAccount;
@@ -135,5 +136,15 @@ public class Utils {
         }
         DateFormat df = DateFormat.getDateInstance(DateFormat.MEDIUM);
         return df.format(date);
+    }
+
+
+    public static String getMimeType(String filePath) {
+        String type = null;
+        String extension = MimeTypeMap.getFileExtensionFromUrl(filePath);
+        if (extension != null) {
+            type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+        }
+        return type;
     }
 }

@@ -40,6 +40,7 @@ import com.mifos.objects.noncore.Document;
 import com.mifos.utils.CheckSelfPermissionAndRequest;
 import com.mifos.utils.Constants;
 import com.mifos.utils.FragmentConstants;
+import com.mifos.utils.Utils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -265,9 +266,9 @@ public class DocumentListFragment extends MifosBaseFragment implements DocumentL
         if (!mifosDirectory.exists()) {
             mifosDirectory.mkdirs();
         }
-
+        File documentFile = null;
         try {
-            File documentFile = new File(mifosDirectory.getPath(), document.getFileName());
+            documentFile = new File(mifosDirectory.getPath(), document.getFileName());
             OutputStream output = new FileOutputStream(documentFile);
             try {
                 try {
@@ -292,10 +293,11 @@ public class DocumentListFragment extends MifosBaseFragment implements DocumentL
         }
 
         //Opening the Saved Document
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setDataAndType(Uri.parse(mifosDirectory.getPath()), document.getType());
-        startActivity(Intent.createChooser(intent,
-                getResources().getString(R.string.open_document)));
+        Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
+        intent.setDataAndType(Uri.fromFile(documentFile),
+                Utils.getMimeType(mifosDirectory.getPath() +
+                        getResources().getString(R.string.slash) + document.getFileName()));
+        startActivity(intent);
     }
 
     @Override
