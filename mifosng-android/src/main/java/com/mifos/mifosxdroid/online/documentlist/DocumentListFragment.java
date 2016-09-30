@@ -267,7 +267,7 @@ public class DocumentListFragment extends MifosBaseFragment implements DocumentL
         }
 
         try {
-            File documentFile = new File(mifosDirectory.getPath(), document.getName());
+            File documentFile = new File(mifosDirectory.getPath(), document.getFileName());
             OutputStream output = new FileOutputStream(documentFile);
             try {
                 try {
