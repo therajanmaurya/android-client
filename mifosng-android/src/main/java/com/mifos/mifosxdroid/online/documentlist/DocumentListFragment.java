@@ -19,7 +19,6 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -39,13 +38,10 @@ import com.mifos.mifosxdroid.dialogfragments.documentdialog.DocumentDialogFragme
 import com.mifos.objects.noncore.Document;
 import com.mifos.utils.CheckSelfPermissionAndRequest;
 import com.mifos.utils.Constants;
+import com.mifos.utils.FileUtils;
 import com.mifos.utils.FragmentConstants;
-import com.mifos.utils.Utils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -258,44 +254,20 @@ public class DocumentListFragment extends MifosBaseFragment implements DocumentL
     @Override
     public void checkExternalStorageAndCreateDocument() {
         // Create a path where we will place our documents in the user's
-        // public pictures directory and check if the file exists.  If
-        // external storage is not currently mounted this will think the
-        // picture doesn't exist.
+        // public directory and check if the file exists.
         File mifosDirectory = new File(Environment.getExternalStorageDirectory(),
                 getResources().getString(R.string.document_directory));
         if (!mifosDirectory.exists()) {
             mifosDirectory.mkdirs();
         }
-        File documentFile = null;
-        try {
-            documentFile = new File(mifosDirectory.getPath(), document.getFileName());
-            OutputStream output = new FileOutputStream(documentFile);
-            try {
-                try {
-                    byte[] buffer = new byte[4 * 1024]; // or other buffer size
-                    int read;
 
-                    while ((read = documentBody.byteStream().read(buffer)) != -1) {
-                        output.write(buffer, 0, read);
-                    }
-                    output.flush();
-                } finally {
-                    output.close();
-                }
-            } catch (Exception e) {
-                Log.d(LOG_TAG, e.getLocalizedMessage()); // handle exception, define IOException
-                // and others
-            }
-        } catch (FileNotFoundException e) {
-            Log.d(LOG_TAG, e.getLocalizedMessage());
-        } finally {
-            documentBody.close();
-        }
+        File documentFile = new File(mifosDirectory.getPath(), document.getFileName());
+        FileUtils.writeInputStreamDataToFile(documentBody.byteStream(), documentFile);
 
         //Opening the Saved Document
         Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
         intent.setDataAndType(Uri.fromFile(documentFile),
-                Utils.getMimeType(mifosDirectory.getPath() +
+                FileUtils.getMimeType(mifosDirectory.getPath() +
                         getResources().getString(R.string.slash) + document.getFileName()));
         startActivity(intent);
     }
