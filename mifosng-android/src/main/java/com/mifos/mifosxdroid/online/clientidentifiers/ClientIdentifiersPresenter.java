@@ -1,7 +1,7 @@
 package com.mifos.mifosxdroid.online.clientidentifiers;
 
-import com.mifos.api.DataManager;
 import com.mifos.api.GenericResponse;
+import com.mifos.api.datamanager.DataManagerClient;
 import com.mifos.mifosxdroid.base.BasePresenter;
 import com.mifos.objects.noncore.Identifier;
 
@@ -10,21 +10,22 @@ import java.util.List;
 import javax.inject.Inject;
 
 import rx.Subscriber;
-import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
 
 /**
  * Created by Rajan Maurya on 06/06/16.
  */
 public class ClientIdentifiersPresenter extends BasePresenter<ClientIdentifiersMvpView> {
 
-    private final DataManager mDataManager;
-    private Subscription mSubscription;
+    private final DataManagerClient mdataManagerClient;
+    private CompositeSubscription mSubscriptions;
 
     @Inject
-    public ClientIdentifiersPresenter(DataManager dataManager) {
-        mDataManager = dataManager;
+    public ClientIdentifiersPresenter(DataManagerClient dataManagerClient) {
+        mdataManagerClient = dataManagerClient;
+        mSubscriptions = new CompositeSubscription();
     }
 
     @Override
@@ -35,14 +36,13 @@ public class ClientIdentifiersPresenter extends BasePresenter<ClientIdentifiersM
     @Override
     public void detachView() {
         super.detachView();
-        if (mSubscription != null) mSubscription.unsubscribe();
+        mSubscriptions.clear();
     }
 
-    public void loadIdentifiers(int clientid) {
+    public void loadIdentifiers(int clientId) {
         checkViewAttached();
         getMvpView().showProgressbar(true);
-        if (mSubscription != null) mSubscription.unsubscribe();
-        mSubscription = mDataManager.getIdentifiers(clientid)
+        mSubscriptions.add(mdataManagerClient.getClientIdentifiers(clientId)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(new Subscriber<List<Identifier>>() {
@@ -62,14 +62,13 @@ public class ClientIdentifiersPresenter extends BasePresenter<ClientIdentifiersM
                         getMvpView().showProgressbar(false);
                         getMvpView().showClientIdentifiers(identifiers);
                     }
-                });
+                }));
     }
 
     public void deleteIdentifier(final int clientId, int identifierId, final int position) {
         checkViewAttached();
         getMvpView().showProgressbar(true);
-        if (mSubscription != null) mSubscription.unsubscribe();
-        mSubscription = mDataManager.deleteIdentifier(clientId, identifierId)
+        mSubscriptions.add(mdataManagerClient.deleteClientIdentifier(clientId, identifierId)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(new Subscriber<GenericResponse>() {
@@ -90,7 +89,7 @@ public class ClientIdentifiersPresenter extends BasePresenter<ClientIdentifiersM
                                 , position);
                         getMvpView().showProgressbar(false);
                     }
-                });
+                }));
     }
 
 }
