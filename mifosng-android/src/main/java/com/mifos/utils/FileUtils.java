@@ -14,6 +14,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import java.io.File;
@@ -25,6 +26,8 @@ import java.io.OutputStream;
  * Created by ishankhanna on 03/07/14.
  */
 public class FileUtils {
+
+    public static final String LOG_TAG = FileUtils.class.getSimpleName();
 
     public static String getPathReal(final Context context, final Uri uri) {
         if (AndroidVersionUtil.isApiVersionGreaterOrEqual(Build.VERSION_CODES.KITKAT)) {
@@ -196,21 +199,21 @@ public class FileUtils {
     /**
      * This Method for writing InputStream into File.
      *
-     * @param in InputStream
+     * @param in   InputStream
      * @param file File
      */
-    public static void writeInputStreamDataToFile(InputStream in, File file ) {
+    public static void writeInputStreamDataToFile(InputStream in, File file) {
         try {
             OutputStream out = new FileOutputStream(file);
             byte[] buf = new byte[1024];
             int len;
-            while((len=in.read(buf))>0){
-                out.write(buf,0,len);
+            while ((len = in.read(buf)) > 0) {
+                out.write(buf, 0, len);
             }
             out.close();
             in.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.d(LOG_TAG, e.getLocalizedMessage());
         }
     }
 }

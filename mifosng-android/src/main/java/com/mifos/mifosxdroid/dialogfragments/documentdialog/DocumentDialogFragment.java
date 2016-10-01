@@ -16,7 +16,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -301,14 +300,9 @@ public class DocumentDialogFragment extends DialogFragment implements DocumentDi
 
     @Override
     public void showDocumentedCreatedSuccessfully(GenericResponse genericResponse) {
-        if (genericResponse != null) {
-
-            Toast.makeText(getActivity(), String.format(getString(R.string
-                            .uploaded_successfully), fileChoosen.getName()),
-                    Toast.LENGTH_SHORT).show();
-
-            Log.d(LOG_TAG, genericResponse.toString());
-        }
+        Toast.makeText(getActivity(), String.format(getString(R.string
+                        .uploaded_successfully), fileChoosen.getName()),
+                Toast.LENGTH_SHORT).show();
         getDialog().dismiss();
     }
 

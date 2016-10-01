@@ -149,6 +149,12 @@ public class DocumentListFragment extends MifosBaseFragment implements DocumentL
         mDocumentListPresenter.loadDocumentList(entityType, entityId);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        mDocumentListPresenter.loadDocumentList(entityType, entityId);
+    }
+
     @OnClick(R.id.noDocumentIcon)
     public void reloadOnError() {
         ll_error.setVisibility(View.GONE);
@@ -266,7 +272,7 @@ public class DocumentListFragment extends MifosBaseFragment implements DocumentL
         FileUtils.writeInputStreamDataToFile(documentBody.byteStream(), documentFile);
 
         //Opening the Saved Document
-        Intent intent = new Intent(android.content.Intent.ACTION_VIEW);
+        Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setDataAndType(Uri.fromFile(documentFile),
                 FileUtils.getMimeType(mifosDirectory.getPath() +
                         getResources().getString(R.string.slash) + document.getFileName()));
