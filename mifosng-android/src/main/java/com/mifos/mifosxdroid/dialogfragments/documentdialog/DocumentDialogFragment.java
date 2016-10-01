@@ -125,6 +125,9 @@ public class DocumentDialogFragment extends DialogFragment implements DocumentDi
             savedInstanceState) {
         rootView = inflater.inflate(R.layout.dialog_fragment_document, container, false);
 
+        ButterKnife.bind(this, rootView);
+        mDocumentDialogPresenter.attachView(this);
+
         if (documentAction == getResources().getString(R.string.update_document)) {
             tv_document_action.setText(R.string.update_document);
             et_document_name.setText(document.getName());
@@ -132,9 +135,6 @@ public class DocumentDialogFragment extends DialogFragment implements DocumentDi
         } else if (documentAction == getResources().getString(R.string.upload_document)) {
             tv_document_action.setText(R.string.upload_document);
         }
-
-        ButterKnife.bind(this, rootView);
-        mDocumentDialogPresenter.attachView(this);
 
         return rootView;
     }
