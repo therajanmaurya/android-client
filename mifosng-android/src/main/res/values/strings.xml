@@ -117,13 +117,13 @@
     <string name="savings_account_submitted_for_approval">The Savings Account has been submitted for
         Approval</string>
     <string name="package_name">Package Name</string>
-    <string name="document_download">Document Download</string>
-    <string name="Document_delete">Document Delete</string>
     <string name="document_directory">/mifos/documents/</string>
     <string name="open_document">Open Document</string>
     <string name="document_remove_successfully">Document Removed Successfully</string>
     <string name="document_fetch_successfully">Document Fetch Successfully</string>
-
+    <string name="update_document">Update Document</string>
+    <string name="document_updated_successfully">%1$s Document Updated Successfully</string>
+    <string name="document_dialog">"Document Dialog</string>
     <!-- General Terms End Here -->
 
 
@@ -137,6 +137,8 @@
     <string name="permission_denied">Permission Denied</string>
     <string name="permission_denied_to_read_external_document">Permission Denied to Read
         External Document</string>
+    <string name="permission_denied_to_write_external_document">Permission Denied to write
+        Document in External Storage</string>
 
 
     <!-- Loan Related Terminologies Begin Here -->
@@ -474,6 +476,8 @@
     <string name="failed_to_fetch_group_and_account">Failed to fetch group and accounts</string>
     <string name="failed_fetch_document">Failed to fetch document</string>
     <string name="failed_to_remove_document">Failed  to remove document</string>
+    <string name="failed_to_upload_document">Failed to upload document</string>
+    <string name="failed_to_update_document">Failed to update document</string>
 
 
     <string-array name="office_ids">
@@ -486,6 +490,13 @@
         <item>office 6</item>
         <item>office 7</item>
     </string-array>
+
+    <string-array name="document_options">
+        <item>Download Document</item>
+        <item>Update Document</item>
+        <item>Remove Document</item>
+    </string-array>
+
     <string name="surveyEmpty">This Survey is Empty</string>
 
 

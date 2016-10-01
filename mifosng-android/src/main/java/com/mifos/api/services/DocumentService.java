@@ -16,6 +16,7 @@ import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Part;
 import retrofit2.http.Path;
 import rx.Observable;
@@ -26,8 +27,8 @@ import rx.Observable;
 public interface DocumentService {
 
     @GET("{entityType}/{entityId}/" + APIEndPoint.DOCUMENTS)
-    Observable<List<Document>> getListOfDocuments(@Path("entityType") String entityType,
-                                                  @Path("entityId") int entityId);
+    Observable<List<Document>> getDocuments(@Path("entityType") String entityType,
+                                            @Path("entityId") int entityId);
 
     /**
      * @param entityType              - Type for which document is being uploaded (Client, Loan
@@ -79,4 +80,28 @@ public interface DocumentService {
     Observable<GenericResponse> removeDocument(@Path("entityType") String entityType,
                                                @Path("entityId") int entityId,
                                                @Path("documentId") int documentId);
+
+    /**
+     * This Service for Updating the Document with EntityType and EntityId and Document Id.
+     * Rest End Point :
+     * PUT
+     * https://demo.openmf.org/fineract-provider/api/v1/{entityType}/{entityId}/documents/
+     * {documentId}
+     *
+     * @param entityType              - Type for which document is being uploaded (Client, Loan
+     *                                or Savings etc)
+     * @param entityId                - Id of Entity
+     * @param documentId              - Id of document
+     * @param nameOfDocument          - Document Name
+     * @param description             - Mandatory - Document Description
+     * @param typedFile               - Mandatory
+     */
+    @PUT("{entityType}/{entityId}/" + APIEndPoint.DOCUMENTS + "/{documentId}")
+    @Multipart
+    Observable<GenericResponse> updateDocument(@Path("entityType") String entityType,
+                                               @Path("entityId") int entityId,
+                                               @Path("documentId") int documentId,
+                                               @Part("name") String nameOfDocument,
+                                               @Part("description") String description,
+                                               @Part() MultipartBody.Part typedFile);
 }

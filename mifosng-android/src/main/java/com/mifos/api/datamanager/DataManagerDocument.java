@@ -28,7 +28,7 @@ public class DataManagerDocument {
 
 
     public Observable<List<Document>> getDocumentsList(String type, int id) {
-        return mBaseApiManager.getDocumentApi().getListOfDocuments(type, id);
+        return mBaseApiManager.getDocumentApi().getDocuments(type, id);
     }
 
     public Observable<GenericResponse> createDocument(
@@ -44,5 +44,11 @@ public class DataManagerDocument {
     public Observable<GenericResponse> removeDocument(String entityType, int entityId,
                                                       int documentId) {
         return mBaseApiManager.getDocumentApi().removeDocument(entityType, entityId, documentId);
+    }
+
+    public Observable<GenericResponse> updateDocument(String entityType, int entityId, int
+            documentId, String name, String desc, MultipartBody.Part file) {
+        return mBaseApiManager.getDocumentApi()
+                .updateDocument(entityType, entityId, documentId, name, desc, file);
     }
 }

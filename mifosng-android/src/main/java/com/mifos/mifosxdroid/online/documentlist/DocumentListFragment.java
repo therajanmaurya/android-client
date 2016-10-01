@@ -6,6 +6,7 @@
 package com.mifos.mifosxdroid.online.documentlist;
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -17,7 +18,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -30,6 +30,7 @@ import android.widget.TextView;
 
 import com.mifos.mifosxdroid.R;
 import com.mifos.mifosxdroid.adapters.DocumentListAdapter;
+import com.mifos.mifosxdroid.core.MaterialDialog;
 import com.mifos.mifosxdroid.core.MifosBaseActivity;
 import com.mifos.mifosxdroid.core.MifosBaseFragment;
 import com.mifos.mifosxdroid.core.RecyclerItemClickListener;
@@ -99,7 +100,7 @@ public class DocumentListFragment extends MifosBaseFragment implements DocumentL
     @Override
     public void onItemClick(View childView, int position) {
         document = mDocumentList.get(position);
-        showDocumentPopUpMenu(mDocumentList.get(position).getId());
+        showDocumentActions(mDocumentList.get(position).getId());
     }
 
     @Override
@@ -174,7 +175,7 @@ public class DocumentListFragment extends MifosBaseFragment implements DocumentL
         CheckSelfPermissionAndRequest.requestPermission(
                 (MifosBaseActivity) getActivity(),
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Constants.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE,
+                Constants.PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE,
                 getResources().getString(
                         R.string.dialog_message_write_external_storage_permission_denied),
                 getResources().getString(R.string.dialog_message_permission_never_ask_again_write),
@@ -193,7 +194,7 @@ public class DocumentListFragment extends MifosBaseFragment implements DocumentL
                                            @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         switch (requestCode) {
-            case Constants.PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE: {
+            case Constants.PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -205,7 +206,7 @@ public class DocumentListFragment extends MifosBaseFragment implements DocumentL
 
                     // permission denied, boo! Disable the
                     Toaster.show(rootView, getResources()
-                            .getString(R.string.permission_denied_to_read_external_document));
+                            .getString(R.string.permission_denied_to_write_external_document));
                 }
             }
         }
@@ -225,30 +226,30 @@ public class DocumentListFragment extends MifosBaseFragment implements DocumentL
     }
 
     @Override
-    public void showDocumentPopUpMenu(final int documentId) {
-        PopupMenu popup =
-                new PopupMenu(getContext(), getActivity().findViewById(R.id.rv_documents));
-        popup.getMenuInflater().inflate(R.menu.document_options, popup.getMenu());
-
-        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            public boolean onMenuItemClick(MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.document_download:
-                        mDocumentListPresenter.downloadDocument(entityType, entityId, documentId);
-                        break;
-
-                    case R.id.document_delete:
-                        mDocumentListPresenter.removeDocument(entityType, entityId, documentId);
-                        break;
-
-                    default:
-                        break;
-                }
-                return true;
-            }
-        });
-
-        popup.show();
+    public void showDocumentActions(final int documentId) {
+        new MaterialDialog.Builder().init(getActivity())
+                .setItems(R.array.document_options, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case 0:
+                                mDocumentListPresenter.downloadDocument(entityType, entityId,
+                                        documentId);
+                                break;
+                            case 1:
+                                showDocumentDialog(getString(R.string.update_document));
+                                break;
+                            case 2:
+                                mDocumentListPresenter.removeDocument(entityType, entityId,
+                                        documentId);
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                })
+                .createMaterialDialog()
+                .show();
     }
 
     @Override
@@ -275,6 +276,17 @@ public class DocumentListFragment extends MifosBaseFragment implements DocumentL
     @Override
     public void showDocumentRemovedSuccessfully() {
         Toaster.show(rootView, getResources().getString(R.string.document_remove_successfully));
+        mDocumentListPresenter.loadDocumentList(entityType, entityId);
+    }
+
+    @Override
+    public void showDocumentDialog(String documentAction) {
+        DocumentDialogFragment documentDialogFragment =
+                DocumentDialogFragment.newInstance(entityType, entityId, documentAction, document);
+        FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager()
+                .beginTransaction();
+        fragmentTransaction.addToBackStack(FragmentConstants.FRAG_DOCUMENT_LIST);
+        documentDialogFragment.show(fragmentTransaction, "Document Dialog Fragment");
     }
 
     @Override
@@ -332,12 +344,7 @@ public class DocumentListFragment extends MifosBaseFragment implements DocumentL
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == MENU_ITEM_ADD_NEW_DOCUMENT) {
-            DocumentDialogFragment documentDialogFragment = DocumentDialogFragment.newInstance
-                    (entityType, entityId);
-            FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager()
-                    .beginTransaction();
-            fragmentTransaction.addToBackStack(FragmentConstants.FRAG_DOCUMENT_LIST);
-            documentDialogFragment.show(fragmentTransaction, "Document Dialog Fragment");
+            showDocumentDialog(getString(R.string.upload_document));
         }
         return super.onOptionsItemSelected(item);
     }

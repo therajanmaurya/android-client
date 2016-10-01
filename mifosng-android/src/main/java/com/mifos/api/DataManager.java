@@ -181,7 +181,7 @@ public class DataManager {
      * Documents API
      */
     public Observable<List<Document>> getDocumentsList(String type, int id) {
-        return mBaseApiManager.getDocumentApi().getListOfDocuments(type, id);
+        return mBaseApiManager.getDocumentApi().getDocuments(type, id);
     }
 
 

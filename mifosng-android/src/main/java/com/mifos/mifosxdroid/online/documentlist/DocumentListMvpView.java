@@ -20,11 +20,13 @@ public interface DocumentListMvpView extends MvpView {
 
     void requestPermission();
 
-    void showDocumentPopUpMenu(int documentId);
+    void showDocumentActions(int documentId);
 
     void checkExternalStorageAndCreateDocument();
 
     void showDocumentRemovedSuccessfully();
+
+    void showDocumentDialog(String documentAction);
 
     void showEmptyDocuments();
 

@@ -30,6 +30,7 @@ import com.mifos.exceptions.RequiredFieldException;
 import com.mifos.mifosxdroid.R;
 import com.mifos.mifosxdroid.core.MifosBaseActivity;
 import com.mifos.mifosxdroid.core.util.Toaster;
+import com.mifos.objects.noncore.Document;
 import com.mifos.utils.AndroidVersionUtil;
 import com.mifos.utils.CheckSelfPermissionAndRequest;
 import com.mifos.utils.Constants;
@@ -54,6 +55,9 @@ public class DocumentDialogFragment extends DialogFragment implements DocumentDi
     private static final int FILE_SELECT_CODE = 0;
 
     private final String LOG_TAG = getClass().getSimpleName();
+
+    @BindView(R.id.tv_document_action)
+    TextView tv_document_action;
 
     @BindView(R.id.et_document_name)
     EditText et_document_name;
@@ -80,15 +84,21 @@ public class DocumentDialogFragment extends DialogFragment implements DocumentDi
     private String documentDescription;
     private String entityType;
     private String filePath;
+    private String documentAction;
+    private Document document;
     private int entityId;
     private File fileChoosen;
     private Uri uri;
 
-    public static DocumentDialogFragment newInstance(String entityType, int entiyId) {
+    public static DocumentDialogFragment newInstance(String entityType, int entityId,
+                                                     String documentAction,
+                                                     Document document) {
         DocumentDialogFragment documentDialogFragment = new DocumentDialogFragment();
         Bundle args = new Bundle();
         args.putString(Constants.ENTITY_TYPE, entityType);
-        args.putInt(Constants.ENTITY_ID, entiyId);
+        args.putInt(Constants.ENTITY_ID, entityId);
+        args.putString(Constants.DOCUMENT_ACTIONS, documentAction);
+        args.putParcelable(Constants.DOCUMENT, document);
         documentDialogFragment.setArguments(args);
         return documentDialogFragment;
     }
@@ -101,6 +111,8 @@ public class DocumentDialogFragment extends DialogFragment implements DocumentDi
         if (getArguments() != null) {
             entityType = getArguments().getString(Constants.ENTITY_TYPE);
             entityId = getArguments().getInt(Constants.ENTITY_ID);
+            documentAction = getArguments().getString(Constants.DOCUMENT_ACTIONS);
+            document = getArguments().getParcelable(Constants.DOCUMENT);
         }
     }
 
@@ -113,6 +125,14 @@ public class DocumentDialogFragment extends DialogFragment implements DocumentDi
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
             savedInstanceState) {
         rootView = inflater.inflate(R.layout.dialog_fragment_document, container, false);
+
+        if (documentAction == getResources().getString(R.string.update_document)) {
+            tv_document_action.setText(R.string.update_document);
+            et_document_name.setText(document.getName());
+            et_document_description.setText(document.getDescription());
+        } else if (documentAction == getResources().getString(R.string.upload_document)) {
+            tv_document_action.setText(R.string.upload_document);
+        }
 
         ButterKnife.bind(this, rootView);
         mDocumentDialogPresenter.attachView(this);
@@ -156,9 +176,13 @@ public class DocumentDialogFragment extends DialogFragment implements DocumentDi
                     getString(R.string.message_field_required));
 
         //Start Uploading Document
-        mDocumentDialogPresenter.createDocument(entityType, entityId,
-                documentName, documentDescription, fileChoosen);
-
+        if (documentAction == getResources().getString(R.string.update_document)) {
+            mDocumentDialogPresenter.updateDocument(entityType, entityId, document.getId(),
+                    documentName, documentDescription, fileChoosen);
+        } else if (documentAction == getResources().getString(R.string.upload_document)) {
+            mDocumentDialogPresenter.createDocument(entityType, entityId,
+                    documentName, documentDescription, fileChoosen);
+        }
     }
 
     /**
@@ -289,8 +313,16 @@ public class DocumentDialogFragment extends DialogFragment implements DocumentDi
     }
 
     @Override
-    public void showError(String s) {
-        Toast.makeText(getActivity(), s, Toast.LENGTH_SHORT).show();
+    public void showDocumentUpdatedSuccessfully() {
+        Toast.makeText(getActivity(), String.format(getString(R.string
+                        .document_updated_successfully), fileChoosen.getName()),
+                Toast.LENGTH_SHORT).show();
+        getDialog().dismiss();
+    }
+
+    @Override
+    public void showError(int errorMessage) {
+        Toast.makeText(getActivity(), getString(errorMessage), Toast.LENGTH_SHORT).show();
         getDialog().dismiss();
     }
 

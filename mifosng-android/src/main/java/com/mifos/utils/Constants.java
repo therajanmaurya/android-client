@@ -79,6 +79,12 @@ public class Constants {
 
     public static final String ENTITY_ID = "entityId";
 
+    public static final String DOCUMENT_ACTIONS =  "document_actions";
+
+    public static final String DOCUMENT = "document_title";
+
+    public static final String DOCUMENT_DESCRIPTION = "document_description";
+
     public static final String CHARGE_ID = "chargeId";
 
     public static final String DATE_OF_COLLECTION = "dateOfCollection";
@@ -109,6 +115,7 @@ public class Constants {
      * method gets the result of the request.
      */
     public static final int PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1;
+    public static final int PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 2;
 
 
     /**
