@@ -151,9 +151,6 @@ public class ClientIdentifiersFragment extends MifosBaseFragment implements
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             public boolean onMenuItemClick(MenuItem item) {
                 switch (item.getItemId()) {
-                    case R.id.menu_update_identifier:
-
-                        break;
                     case R.id.menu_remove_identifier:
                         mClientIdentifiersPresenter.deleteIdentifier(clientId,
                                 identifiers.get(position).getId());
@@ -220,5 +217,6 @@ public class ClientIdentifiersFragment extends MifosBaseFragment implements
     public void onDestroyView() {
         super.onDestroyView();
         mClientIdentifiersPresenter.detachView();
+        hideMifosProgressBar();
     }
 }

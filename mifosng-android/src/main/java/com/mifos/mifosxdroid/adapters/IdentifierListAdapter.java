@@ -26,7 +26,7 @@ import butterknife.ButterKnife;
 /**
  * Created by ishankhanna on 03/07/14.
  */
-public class IdentifierListAdapter extends RecyclerView.Adapter<IdentifierListAdapter.ViewHolder>  {
+public class IdentifierListAdapter extends RecyclerView.Adapter<IdentifierListAdapter.ViewHolder> {
 
     private List<Identifier> identifiers;
     private IdentifierOptionsListener identifierOptionsListener;

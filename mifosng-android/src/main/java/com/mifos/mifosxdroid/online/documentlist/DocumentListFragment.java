@@ -330,6 +330,7 @@ public class DocumentListFragment extends MifosBaseFragment implements DocumentL
     public void onDestroyView() {
         super.onDestroyView();
         mDocumentListPresenter.detachView();
+        hideMifosProgressBar();
     }
 
     @Override

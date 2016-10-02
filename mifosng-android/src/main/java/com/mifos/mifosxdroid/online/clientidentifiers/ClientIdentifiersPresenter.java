@@ -19,12 +19,12 @@ import rx.subscriptions.CompositeSubscription;
  */
 public class ClientIdentifiersPresenter extends BasePresenter<ClientIdentifiersMvpView> {
 
-    private final DataManagerClient mdataManagerClient;
+    private final DataManagerClient mDataManagerClient;
     private CompositeSubscription mSubscriptions;
 
     @Inject
     public ClientIdentifiersPresenter(DataManagerClient dataManagerClient) {
-        mdataManagerClient = dataManagerClient;
+        mDataManagerClient = dataManagerClient;
         mSubscriptions = new CompositeSubscription();
     }
 
@@ -42,7 +42,7 @@ public class ClientIdentifiersPresenter extends BasePresenter<ClientIdentifiersM
     public void loadIdentifiers(int clientId) {
         checkViewAttached();
         getMvpView().showProgressbar(true);
-        mSubscriptions.add(mdataManagerClient.getClientIdentifiers(clientId)
+        mSubscriptions.add(mDataManagerClient.getClientIdentifiers(clientId)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(new Subscriber<List<Identifier>>() {
@@ -72,7 +72,7 @@ public class ClientIdentifiersPresenter extends BasePresenter<ClientIdentifiersM
     public void deleteIdentifier(final int clientId, int identifierId) {
         checkViewAttached();
         getMvpView().showProgressbar(true);
-        mSubscriptions.add(mdataManagerClient.deleteClientIdentifier(clientId, identifierId)
+        mSubscriptions.add(mDataManagerClient.deleteClientIdentifier(clientId, identifierId)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe(new Subscriber<GenericResponse>() {
