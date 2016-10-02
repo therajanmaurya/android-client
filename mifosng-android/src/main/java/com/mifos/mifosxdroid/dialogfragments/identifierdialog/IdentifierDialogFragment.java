@@ -31,7 +31,6 @@ import butterknife.OnClick;
 /**
  * Created by Rajan Maurya on 01/10/16.
  */
-
 public class IdentifierDialogFragment extends ProgressableDialogFragment implements
         IdentifierDialogMvpView, AdapterView.OnItemSelectedListener {
 
@@ -120,7 +119,7 @@ public class IdentifierDialogFragment extends ProgressableDialogFragment impleme
     void onClickCreateIdentifier() {
 
         if( et_unique_id.getText().toString().trim().equals("")){
-            et_unique_id.setError( "Unique Id is required!" );
+            et_unique_id.setError(getResources().getString(R.string.unique_id_required));
         } else if (mListIdentifierType.size() == 0) {
             showError(R.string.empty_identifier_document_type);
         } else{
@@ -148,6 +147,11 @@ public class IdentifierDialogFragment extends ProgressableDialogFragment impleme
         Toast.makeText(getActivity(), R.string.identifier_created_successfully,
                 Toast.LENGTH_SHORT).show();
         getDialog().dismiss();
+    }
+
+    @Override
+    public void showMessage(String message) {
+        Toast.makeText(getActivity(),message, Toast.LENGTH_LONG).show();
     }
 
     @Override

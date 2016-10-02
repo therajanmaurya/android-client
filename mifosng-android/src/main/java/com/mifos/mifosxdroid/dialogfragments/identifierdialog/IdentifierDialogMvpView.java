@@ -15,5 +15,7 @@ public interface IdentifierDialogMvpView extends MvpView {
 
     void showIdentifierCreatedSuccessfully();
 
+    void showMessage(String message);
+
     void showError(int errorMessage);
 }

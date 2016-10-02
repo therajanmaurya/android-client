@@ -132,6 +132,7 @@
     <string name="empty_identifier_document_type">Identifier Document Type id is Empty \n
         May be, Identifier Template is failed to fetch. Please Check your Internet
     Connection</string>
+    <string name="unique_id_required">Unique Id is required!</string>
     <!-- General Terms End Here -->
 
 

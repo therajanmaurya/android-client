@@ -7,16 +7,19 @@ import com.mifos.mifosxdroid.base.BasePresenter;
 import com.mifos.objects.noncore.IdentifierPayload;
 import com.mifos.objects.noncore.IdentifierTemplate;
 import com.mifos.objects.noncore.IdentifierType;
+import com.mifos.utils.MFErrorParser;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
 
+import retrofit2.adapter.rxjava.HttpException;
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
+import rx.plugins.RxJavaPlugins;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
@@ -86,7 +89,16 @@ public class IdentifierDialogPresenter extends BasePresenter<IdentifierDialogMvp
                     @Override
                     public void onError(Throwable e) {
                         getMvpView().showProgressbar(false);
-                        getMvpView().showError(R.string.failed_to_create_identifier);
+                        try {
+                            if (e instanceof HttpException) {
+                                String errorMessage = ((HttpException) e).response().errorBody()
+                                        .string();
+                                getMvpView().showMessage(MFErrorParser.parseError(errorMessage)
+                                        .getErrors().get(0).getDefaultUserMessage());
+                            }
+                        } catch (Throwable throwable) {
+                            RxJavaPlugins.getInstance().getErrorHandler().handleError(e);
+                        }
                     }
 
                     @Override
