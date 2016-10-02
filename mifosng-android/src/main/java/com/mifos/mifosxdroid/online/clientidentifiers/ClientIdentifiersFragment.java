@@ -140,8 +140,8 @@ public class ClientIdentifiersFragment extends MifosBaseFragment implements
     }
 
     @Override
-    public void showFetchingError(String s) {
-        Toast.makeText(getActivity(), s, Toast.LENGTH_SHORT).show();
+    public void showFetchingError(int errorMessage) {
+        Toast.makeText(getActivity(), errorMessage, Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -162,7 +162,8 @@ public class ClientIdentifiersFragment extends MifosBaseFragment implements
                                         identifiers.get(position).getId());
                         FragmentTransaction fragmentTransaction =
                                 getActivity().getSupportFragmentManager().beginTransaction();
-                        fragmentTransaction.addToBackStack(FragmentConstants.FRAG_CLIENT_IDENTIFIER);
+                        fragmentTransaction.addToBackStack(FragmentConstants
+                                .FRAG_CLIENT_IDENTIFIER);
                         fragmentTransaction.replace(R.id.container, documentListFragment);
                         fragmentTransaction.commit();
                         break;
@@ -176,8 +177,9 @@ public class ClientIdentifiersFragment extends MifosBaseFragment implements
     }
 
     @Override
-    public void identifierDeletedSuccessfully(String s) {
-        Toast.makeText(getActivity(), s, Toast.LENGTH_SHORT).show();
+    public void identifierDeletedSuccessfully() {
+        Toast.makeText(getActivity(), R.string.identifier_deleted_successfully,
+                Toast.LENGTH_SHORT).show();
         loadIdentifiers();
     }
 

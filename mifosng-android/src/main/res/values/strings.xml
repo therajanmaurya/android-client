@@ -135,6 +135,7 @@
     Connection</string>
     <string name="unique_id_required">Unique Id is required!</string>
     <string name="update">Update</string>
+    <string name="identifier_deleted_successfully">Identifier deleted Successfully</string>
     <!-- General Terms End Here -->
 
 
@@ -491,6 +492,8 @@
     <string name="failed_to_update_document">Failed to update document</string>
     <string name="failed_to_fetch_identifier_template">Failed to Fetch Identifier Template</string>
     <string name="failed_to_create_identifier">Failed to Create Identifier</string>
+    <string name="failed_to_fetch_identifier">Failed to fetch identifiers</string>
+    <string name="failed_to_delete_identifier">Failed to delete Identifier</string>
 
 
     <string-array name="office_ids">

@@ -16,7 +16,7 @@ public interface ClientIdentifiersMvpView extends MvpView {
 
     void showEmptyClientIdentifier();
 
-    void showFetchingError(String s);
+    void showFetchingError(int errorMessage);
 
-    void identifierDeletedSuccessfully(String s);
+    void identifierDeletedSuccessfully();
 }

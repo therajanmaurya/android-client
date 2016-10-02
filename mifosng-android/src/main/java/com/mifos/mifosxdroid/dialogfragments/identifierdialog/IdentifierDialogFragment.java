@@ -47,7 +47,7 @@ public class IdentifierDialogFragment extends ProgressableDialogFragment impleme
     EditText et_unique_id;
 
     @BindArray(R.array.status)
-    String [] identifierStatus;
+    String[] identifierStatus;
 
     @Inject
     IdentifierDialogPresenter mIdentifierDialogPresenter;
@@ -118,12 +118,12 @@ public class IdentifierDialogFragment extends ProgressableDialogFragment impleme
     @OnClick(R.id.btn_create_identifier)
     void onClickCreateIdentifier() {
 
-        if( et_unique_id.getText().toString().trim().equals("")){
+        if (et_unique_id.getText().toString().trim().equals("")) {
             et_unique_id.setError(getResources().getString(R.string.unique_id_required));
         } else if (mListIdentifierType.size() == 0) {
             showError(R.string.empty_identifier_document_type);
-        } else{
-            IdentifierPayload  identifierPayload = new IdentifierPayload();
+        } else {
+            IdentifierPayload identifierPayload = new IdentifierPayload();
             identifierPayload.setDocumentTypeId(identifierDocumentTypeId);
             identifierPayload.setStatus(status);
             identifierPayload.setDocumentKey(et_unique_id.getText().toString());
@@ -151,7 +151,7 @@ public class IdentifierDialogFragment extends ProgressableDialogFragment impleme
 
     @Override
     public void showMessage(String message) {
-        Toast.makeText(getActivity(),message, Toast.LENGTH_LONG).show();
+        Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
     }
 
     @Override

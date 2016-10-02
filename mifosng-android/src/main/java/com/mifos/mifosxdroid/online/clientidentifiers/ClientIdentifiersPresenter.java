@@ -2,6 +2,7 @@ package com.mifos.mifosxdroid.online.clientidentifiers;
 
 import com.mifos.api.GenericResponse;
 import com.mifos.api.datamanager.DataManagerClient;
+import com.mifos.mifosxdroid.R;
 import com.mifos.mifosxdroid.base.BasePresenter;
 import com.mifos.objects.noncore.Identifier;
 
@@ -54,7 +55,7 @@ public class ClientIdentifiersPresenter extends BasePresenter<ClientIdentifiersM
                     @Override
                     public void onError(Throwable e) {
                         getMvpView().showProgressbar(false);
-                        getMvpView().showFetchingError("Error to Load Identifiers");
+                        getMvpView().showFetchingError(R.string.failed_to_fetch_identifier);
                     }
 
                     @Override
@@ -84,12 +85,12 @@ public class ClientIdentifiersPresenter extends BasePresenter<ClientIdentifiersM
                     @Override
                     public void onError(Throwable e) {
                         getMvpView().showProgressbar(false);
-                        getMvpView().showFetchingError("Failed to delete Identifier");
+                        getMvpView().showFetchingError(R.string.failed_to_delete_identifier);
                     }
 
                     @Override
                     public void onNext(GenericResponse genericResponse) {
-                        getMvpView().identifierDeletedSuccessfully("Successfully deleted");
+                        getMvpView().identifierDeletedSuccessfully();
                         getMvpView().showProgressbar(false);
                     }
                 }));
