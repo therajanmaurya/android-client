@@ -60,12 +60,16 @@ public class ClientIdentifiersPresenter extends BasePresenter<ClientIdentifiersM
                     @Override
                     public void onNext(List<Identifier> identifiers) {
                         getMvpView().showProgressbar(false);
-                        getMvpView().showClientIdentifiers(identifiers);
+                        if (!identifiers.isEmpty()) {
+                            getMvpView().showClientIdentifiers(identifiers);
+                        } else {
+                            getMvpView().showEmptyClientIdentifier();
+                        }
                     }
                 }));
     }
 
-    public void deleteIdentifier(final int clientId, int identifierId, final int position) {
+    public void deleteIdentifier(final int clientId, int identifierId) {
         checkViewAttached();
         getMvpView().showProgressbar(true);
         mSubscriptions.add(mdataManagerClient.deleteClientIdentifier(clientId, identifierId)
@@ -85,8 +89,7 @@ public class ClientIdentifiersPresenter extends BasePresenter<ClientIdentifiersM
 
                     @Override
                     public void onNext(GenericResponse genericResponse) {
-                        getMvpView().identifierDeletedSuccessfully("Successfully deleted"
-                                , position);
+                        getMvpView().identifierDeletedSuccessfully("Successfully deleted");
                         getMvpView().showProgressbar(false);
                     }
                 }));

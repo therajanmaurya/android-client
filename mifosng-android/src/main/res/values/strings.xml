@@ -71,6 +71,7 @@
     <string name="file_location">Location</string>
     <string name="documents">Documents</string>
     <string name="no_document_to_show">There is No Documents to Show</string>
+    <string name="no_identifier_to_show">There is No Identifier to Show</string>
     <string name="approve_savings">Approve Savings</string>
     <string name="activate_savings">Activate Savings</string>
     <string name="savings_account_closed">Savings Account Closed</string>
@@ -133,6 +134,7 @@
         May be, Identifier Template is failed to fetch. Please Check your Internet
     Connection</string>
     <string name="unique_id_required">Unique Id is required!</string>
+    <string name="update">Update</string>
     <!-- General Terms End Here -->
 
 
