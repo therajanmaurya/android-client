@@ -128,6 +128,10 @@
     <string name="document_type">Document Type</string>
     <string name="status">Status</string>
     <string name="unique_id">Unique Id</string>
+    <string name="identifier_created_successfully">Identifier Created Successfully</string>
+    <string name="empty_identifier_document_type">Identifier Document Type id is Empty \n
+        May be, Identifier Template is failed to fetch. Please Check your Internet
+    Connection</string>
     <!-- General Terms End Here -->
 
 

@@ -15,7 +15,7 @@ public class IdentifierPayload implements Parcelable {
     Integer documentTypeId;
 
     @SerializedName("documentKey")
-    Integer documentKey;
+    String documentKey;
 
     @SerializedName("status")
     String status;
@@ -31,11 +31,11 @@ public class IdentifierPayload implements Parcelable {
         this.documentTypeId = documentTypeId;
     }
 
-    public Integer getDocumentKey() {
+    public String getDocumentKey() {
         return documentKey;
     }
 
-    public void setDocumentKey(Integer documentKey) {
+    public void setDocumentKey(String documentKey) {
         this.documentKey = documentKey;
     }
 
@@ -74,7 +74,7 @@ public class IdentifierPayload implements Parcelable {
 
     protected IdentifierPayload(Parcel in) {
         this.documentTypeId = (Integer) in.readValue(Integer.class.getClassLoader());
-        this.documentKey = (Integer) in.readValue(Integer.class.getClassLoader());
+        this.documentKey = (String) in.readValue(String.class.getClassLoader());
         this.status = (String) in.readValue(String.class.getClassLoader());
         this.description = in.readString();
     }

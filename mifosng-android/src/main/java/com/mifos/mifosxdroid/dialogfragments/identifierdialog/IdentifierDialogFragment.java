@@ -2,19 +2,19 @@ package com.mifos.mifosxdroid.dialogfragments.identifierdialog;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.mifos.mifosxdroid.R;
 import com.mifos.mifosxdroid.core.MifosBaseActivity;
+import com.mifos.mifosxdroid.core.ProgressableDialogFragment;
+import com.mifos.objects.noncore.IdentifierPayload;
 import com.mifos.objects.noncore.IdentifierTemplate;
 import com.mifos.utils.Constants;
 
@@ -26,12 +26,13 @@ import javax.inject.Inject;
 import butterknife.BindArray;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 /**
  * Created by Rajan Maurya on 01/10/16.
  */
 
-public class IdentifierDialogFragment extends DialogFragment implements
+public class IdentifierDialogFragment extends ProgressableDialogFragment implements
         IdentifierDialogMvpView, AdapterView.OnItemSelectedListener {
 
     @BindView(R.id.sp_identifier_type)
@@ -46,9 +47,6 @@ public class IdentifierDialogFragment extends DialogFragment implements
     @BindView(R.id.et_unique_id)
     EditText et_unique_id;
 
-    @BindView(R.id.btn_create_identifier)
-    Button btn_create_identifier;
-
     @BindArray(R.array.status)
     String [] identifierStatus;
 
@@ -57,6 +55,9 @@ public class IdentifierDialogFragment extends DialogFragment implements
 
     View rootView;
     private int clientId;
+    private IdentifierTemplate identifierTemplate;
+    private int identifierDocumentTypeId;
+    private String status;
 
     List<String> mListIdentifierType = new ArrayList<>();
 
@@ -115,9 +116,28 @@ public class IdentifierDialogFragment extends DialogFragment implements
 
     }
 
+    @OnClick(R.id.btn_create_identifier)
+    void onClickCreateIdentifier() {
+
+        if( et_unique_id.getText().toString().trim().equals("")){
+            et_unique_id.setError( "Unique Id is required!" );
+        } else if (mListIdentifierType.size() == 0) {
+            showError(R.string.empty_identifier_document_type);
+        } else{
+            IdentifierPayload  identifierPayload = new IdentifierPayload();
+            identifierPayload.setDocumentTypeId(identifierDocumentTypeId);
+            identifierPayload.setStatus(status);
+            identifierPayload.setDocumentKey(et_unique_id.getText().toString());
+            identifierPayload.setDescription(et_description.getText().toString());
+
+            mIdentifierDialogPresenter.createClientIdentifier(clientId, identifierPayload);
+        }
+    }
+
     @Override
     public void showClientIdentifierTemplate(IdentifierTemplate identifierTemplate) {
 
+        this.identifierTemplate = identifierTemplate;
         mListIdentifierType.addAll(mIdentifierDialogPresenter.getIdentifierDocumentTypeNames
                 (identifierTemplate.getAllowedDocumentTypes()));
         mIdentifierTypeAdapter.notifyDataSetChanged();
@@ -125,7 +145,9 @@ public class IdentifierDialogFragment extends DialogFragment implements
 
     @Override
     public void showIdentifierCreatedSuccessfully() {
-
+        Toast.makeText(getActivity(), R.string.identifier_created_successfully,
+                Toast.LENGTH_SHORT).show();
+        getDialog().dismiss();
     }
 
     @Override
@@ -134,7 +156,8 @@ public class IdentifierDialogFragment extends DialogFragment implements
     }
 
     @Override
-    public void showProgressbar(boolean b) {
+    public void showProgressbar(boolean show) {
+        showProgress(show);
     }
 
     @Override
@@ -147,10 +170,11 @@ public class IdentifierDialogFragment extends DialogFragment implements
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
         switch (parent.getId()) {
             case R.id.sp_identifier_type:
-
+                identifierDocumentTypeId = identifierTemplate.getAllowedDocumentTypes()
+                        .get(position).getId();
                 break;
             case R.id.sp_identifier_status:
-
+                status = identifierStatus[position];
                 break;
         }
     }
