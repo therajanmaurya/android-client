@@ -9,10 +9,9 @@
       xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/offline"
-        android:title="@string/offline"
+        android:id="@+id/menu_add"
         app:showAsAction="ifRoom"
+        android:icon="@android:drawable/ic_input_add"
         android:enabled="true"/>
-
 
 </menu>

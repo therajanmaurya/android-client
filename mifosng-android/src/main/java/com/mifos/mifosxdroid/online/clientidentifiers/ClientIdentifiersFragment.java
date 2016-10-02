@@ -6,8 +6,12 @@
 package com.mifos.mifosxdroid.online.clientidentifiers;
 
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
@@ -17,8 +21,10 @@ import com.mifos.mifosxdroid.R;
 import com.mifos.mifosxdroid.adapters.IdentifierListAdapter;
 import com.mifos.mifosxdroid.core.MifosBaseActivity;
 import com.mifos.mifosxdroid.core.ProgressableFragment;
+import com.mifos.mifosxdroid.dialogfragments.identifierdialog.IdentifierDialogFragment;
 import com.mifos.objects.noncore.Identifier;
 import com.mifos.utils.Constants;
+import com.mifos.utils.FragmentConstants;
 
 import java.util.List;
 
@@ -56,8 +62,10 @@ public class ClientIdentifiersFragment extends ProgressableFragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ((MifosBaseActivity) getActivity()).getActivityComponent().inject(this);
-        if (getArguments() != null)
+        if (getArguments() != null) {
             clientId = getArguments().getInt(Constants.CLIENT_ID);
+        }
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -127,6 +135,27 @@ public class ClientIdentifiersFragment extends ProgressableFragment
     @Override
     public void showProgressbar(boolean b) {
         showProgress(b);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_add, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_add:
+                IdentifierDialogFragment identifierDialogFragment =
+                        IdentifierDialogFragment.newInstance(clientId);
+                FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager()
+                        .beginTransaction();
+                fragmentTransaction.addToBackStack(FragmentConstants.FRAG_DOCUMENT_LIST);
+                identifierDialogFragment.show(fragmentTransaction, "Identifier Dialog Fragment");
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
