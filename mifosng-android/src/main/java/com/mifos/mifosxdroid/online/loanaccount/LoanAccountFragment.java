@@ -657,15 +657,15 @@ public class LoanAccountFragment extends ProgressableDialogFragment
         interestRatePerPeriod = mLoanTemplate.getInterestRatePerPeriod();
         loanTermFrequencyType = mLoanTemplate.getInterestRateFrequencyType().getId();
         termFrequency = mLoanTemplate.getTermFrequency();
-        etPrincipal.setText(mLoanTemplate.getPrincipal().toString());
-        etNumberOfRepayments.setText(mLoanTemplate.getNumberOfRepayments().toString());
+        etPrincipal.setText(String.valueOf(mLoanTemplate.getPrincipal()));
+        etNumberOfRepayments.setText(String.valueOf(mLoanTemplate.getNumberOfRepayments()));
         tvNominalRatePerYearMonth
                 .setText(mLoanTemplate.getInterestRateFrequencyType().getValue());
-        etNominalInterestRate.setText(mLoanTemplate.getInterestRatePerPeriod().toString());
-        etLoanTerm.setText(termFrequency.toString());
+        etNominalInterestRate.setText(String.valueOf(mLoanTemplate.getInterestRatePerPeriod()));
+        etLoanTerm.setText(String.valueOf(termFrequency));
         if (mLoanTemplate.getRepaymentEvery() != null) {
             repaymentEvery = mLoanTemplate.getRepaymentEvery();
-            etRepaidEvery.setText(repaymentEvery.toString());
+            etRepaidEvery.setText(String.valueOf(repaymentEvery));
         }
         if (mLoanTemplate.getFundId() != null) {
             fundId = mLoanTemplate.getFundId();
