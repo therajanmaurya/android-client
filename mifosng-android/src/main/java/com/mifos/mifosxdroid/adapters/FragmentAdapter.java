@@ -9,30 +9,37 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by ishankhanna on 11/03/14.
  */
 public class FragmentAdapter extends FragmentPagerAdapter {
+    private final List<Fragment> mFragments = new ArrayList<>();
+    private final List<String> mFragmentTitles = new ArrayList<>();
 
+    public FragmentAdapter(FragmentManager fragmentManager) {
+        super(fragmentManager);
+    }
 
-    List<Fragment> fragmentList;
-
-    public FragmentAdapter(FragmentManager fm, List<Fragment> fragmentList) {
-        super(fm);
-        this.fragmentList = fragmentList;
+    public void addFragment(Fragment fragment, String title) {
+        mFragments.add(fragment);
+        mFragmentTitles.add(title);
     }
 
     @Override
     public Fragment getItem(int position) {
-
-        return this.fragmentList.get(position);
+        return mFragments.get(position);
     }
-
 
     @Override
     public int getCount() {
-        return this.fragmentList.size();
+        return mFragments.size();
+    }
+
+    @Override
+    public CharSequence getPageTitle(int position) {
+        return mFragmentTitles.get(position);
     }
 }

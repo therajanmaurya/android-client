@@ -3,7 +3,7 @@
  * See https://github.com/openMF/android-client/blob/master/LICENSE.md
  */
 
-package com.mifos.mifosxdroid.online.datatablelistfragment;
+package com.mifos.mifosxdroid.online.attacheddatatable;
 
 
 import android.graphics.Typeface;
@@ -60,10 +60,13 @@ public class DataTableListFragment extends Fragment
         implements DataTableListMvpView {
 
     private final String LOG_TAG = getClass().getSimpleName();
+
     @BindView(R.id.ll_data_table_entry_form)
     LinearLayout linearLayout;
+
     @Inject
     DataTableListPresenter mDataTableListPresenter;
+
     private ArrayList<DataTable> dataTables;
     private ArrayList<com.mifos.objects.datatablepayload.DataTable> dataTablePayloadElements;
     private LoansPayload clientLoansPayload;
@@ -71,7 +74,7 @@ public class DataTableListFragment extends Fragment
     private int requestType;
     private View rootView;
     private SafeUIBlockingUtility safeUIBlockingUtility;
-    private List<List<FormWidget>> listFormWidgets = new ArrayList<List<FormWidget>>();
+    private List<List<FormWidget>> listFormWidgets = new ArrayList<>();
 
     public static DataTableListFragment newInstance(ArrayList<DataTable> dataTables,
                                                     Object payload, int type) {

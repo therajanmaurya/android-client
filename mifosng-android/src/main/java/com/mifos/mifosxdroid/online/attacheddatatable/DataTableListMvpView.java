@@ -1,4 +1,4 @@
-package com.mifos.mifosxdroid.online.datatablelistfragment;
+package com.mifos.mifosxdroid.online.attacheddatatable;
 
 import com.mifos.mifosxdroid.base.MvpView;
 

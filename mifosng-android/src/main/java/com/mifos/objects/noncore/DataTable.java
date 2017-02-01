@@ -8,7 +8,10 @@ package com.mifos.objects.noncore;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -16,11 +19,17 @@ import java.util.List;
  */
 public class DataTable implements Parcelable {
 
+    @SerializedName("applicationTableName")
     String applicationTableName;
 
+    @SerializedName("columnHeaderData")
     List<ColumnHeader> columnHeaderData;
 
+    @SerializedName("registeredTableName")
     String registeredTableName;
+
+    @SerializedName("data")
+    HashMap<String, Object> data;
 
     public List<ColumnHeader> getColumnHeaderData() {
         return columnHeaderData;

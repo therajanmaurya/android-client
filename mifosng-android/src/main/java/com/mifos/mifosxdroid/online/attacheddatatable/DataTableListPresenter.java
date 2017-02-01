@@ -1,4 +1,4 @@
-package com.mifos.mifosxdroid.online.datatablelistfragment;
+package com.mifos.mifosxdroid.online.attacheddatatable;
 
 import com.mifos.api.DataManager;
 import com.mifos.api.datamanager.DataManagerLoan;

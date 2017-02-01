@@ -20,12 +20,14 @@ import com.mifos.mifosxdroid.offline.syncclientpayloads.SyncClientPayloadsFragme
 import com.mifos.mifosxdroid.offline.syncgrouppayloads.SyncGroupPayloadsFragment;
 import com.mifos.mifosxdroid.offline.syncloanrepaymenttransacition.SyncLoanRepaymentTransactionFragment;
 import com.mifos.mifosxdroid.offline.syncsavingsaccounttransaction.SyncSavingsAccountTransactionFragment;
+
+import com.mifos.mifosxdroid.online.attacheddatatable.DataTableViewPager;
 import com.mifos.mifosxdroid.online.centerlist.CenterListFragment;
 import com.mifos.mifosxdroid.online.clientcharge.ClientChargeFragment;
 import com.mifos.mifosxdroid.online.clientdetails.ClientDetailsFragment;
 import com.mifos.mifosxdroid.online.clientidentifiers.ClientIdentifiersFragment;
 import com.mifos.mifosxdroid.online.clientlist.ClientListFragment;
-import com.mifos.mifosxdroid.online.datatablelistfragment.DataTableListFragment;
+import com.mifos.mifosxdroid.online.attacheddatatable.DataTableListFragment;
 import com.mifos.mifosxdroid.online.search.SearchFragment;
 import com.mifos.mifosxdroid.online.collectionsheet.CollectionSheetFragment;
 import com.mifos.mifosxdroid.online.createnewcenter.CreateNewCenterFragment;
@@ -153,4 +155,6 @@ public interface ActivityComponent {
     void inject(IdentifierDialogFragment identifierDialogFragment);
 
     void inject(PathTrackingActivity pathTrackingActivity);
+
+    void inject(DataTableViewPager dataTableViewPager);
 }

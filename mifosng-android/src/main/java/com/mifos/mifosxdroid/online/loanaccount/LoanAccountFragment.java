@@ -6,7 +6,6 @@
 package com.mifos.mifosxdroid.online.loanaccount;
 
 import android.R.layout;
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentTransaction;
@@ -27,7 +26,7 @@ import com.mifos.mifosxdroid.R;
 import com.mifos.mifosxdroid.core.MifosBaseActivity;
 import com.mifos.mifosxdroid.core.ProgressableDialogFragment;
 import com.mifos.mifosxdroid.core.util.Toaster;
-import com.mifos.mifosxdroid.online.datatablelistfragment.DataTableListFragment;
+import com.mifos.mifosxdroid.online.attacheddatatable.DataTableViewPager;
 import com.mifos.mifosxdroid.uihelpers.MFDatePicker;
 import com.mifos.objects.accounts.loan.AccountLinkingOptions;
 import com.mifos.objects.accounts.loan.Loans;
@@ -284,7 +283,7 @@ public class LoanAccountFragment extends ProgressableDialogFragment
         loansPayload.setInterestRatePerPeriod(interestRatePerPeriod);
 
         if (hasDataTables) {
-            DataTableListFragment fragment = DataTableListFragment.newInstance(
+            DataTableViewPager fragment = DataTableViewPager.newInstance(
                     mLoanTemplate.getDataTables(),
                     loansPayload, Constants.CLIENT_LOAN);
 
@@ -453,7 +452,9 @@ public class LoanAccountFragment extends ProgressableDialogFragment
     public void showLoanAccountTemplate(LoanTemplate loanTemplate) {
         mLoanTemplate = loanTemplate;
 
-        hasDataTables = mLoanTemplate.getDataTables().size() > 0;
+        if (!mLoanTemplate.getDataTables().isEmpty()) {
+            hasDataTables = true;
+        }
 
         mListRepaymentFrequencyNthDayTypeOptions.clear();
         mRepaymentFrequencyNthDayTypeOptions = mLoanTemplate
@@ -550,11 +551,6 @@ public class LoanAccountFragment extends ProgressableDialogFragment
     @Override
     public void showProgressbar(boolean b) {
         showProgress(b);
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
     }
 
     @Override
